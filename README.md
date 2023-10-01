@@ -59,11 +59,11 @@ systemctl status sing-box
 ```
 # Cập nhật thời gian thực
 
-``
+```
 journalctl -u sing-box -o cat -f
 ```
 
-# Thời Tiết TCP
+# Thời tiết TCP
 
 ```
  bash -c "$(curl -L https://raw.githubusercontent.com/Thaomtam/Oneclick-Xray-Reality/main/thoitiet.sh)"
