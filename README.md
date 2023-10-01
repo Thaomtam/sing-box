@@ -1,6 +1,7 @@
 # sing-box
 - Tốc độ khủng
 # Build trực tiếp
+
 ```
 bash -c "$(curl -L https://sing-box.vercel.app)" @ install --go
 ```
@@ -47,18 +48,23 @@ EOF
 ```
 
 # Khởi động lại
+
 ```
 systemctl restart sing-box
 ```
 # Xem nhật kí
+
 ```
 systemctl status sing-box
 ```
 # Cập nhật thời gian thực
+
 ``
 journalctl -u sing-box -o cat -f
 ```
+
 # Thời Tiết TCP
+
 ```
  bash -c "$(curl -L https://raw.githubusercontent.com/Thaomtam/Oneclick-Xray-Reality/main/thoitiet.sh)"
- ```
+```
