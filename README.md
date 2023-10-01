@@ -1,1 +1,64 @@
 # sing-box
+- Tốc độ khủng
+# Build trực tiếp
+```
+bash -c "$(curl -L https://sing-box.vercel.app)" @ install --go
+```
+
+# Cấu hình server
+```
+cat << EOF > /usr/local/etc/sing-box/config.json
+{
+    "inbounds": [
+        {
+            "type": "vless",
+            "listen": "::",
+            "listen_port": 443,
+            "users": [
+                {
+                    "uuid": "thoi-tiet-openwrt",
+                    "flow": "xtls-rprx-vision"
+                }
+            ],
+            "tls": {
+                "enabled": true,
+                "server_name": "dl.kgvn.garenanow.com",
+                "reality": {
+                    "enabled": true,
+                    "handshake": {
+                        "server": "1.1.1.1",
+                        "server_port": 443
+                    },
+                    "private_key": "sELUHVtMZVXnBVNLOJYOR9NdpZbR7QVjS5b9X0F6iGU",
+                    "short_id": [
+                        "e9455277471d0a78"
+                    ]
+                }
+            }
+        }
+    ],
+    "outbounds": [
+        {
+            "type": "direct"
+        }
+    ]
+}
+EOF
+```
+
+# Khởi động lại
+```
+systemctl restart sing-box
+```
+# Xem nhật kí
+```
+systemctl status sing-box
+```
+# Cập nhật thời gian thực
+``
+journalctl -u sing-box -o cat -f
+```
+# Thời Tiết TCP
+```
+ bash -c "$(curl -L https://raw.githubusercontent.com/Thaomtam/Oneclick-Xray-Reality/main/thoitiet.sh)"
+ ```
