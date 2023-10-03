@@ -10,14 +10,6 @@ bash -c "$(curl -L https://sing-box.vercel.app)" @ install --go
 ```
 cat << EOF > /usr/local/etc/sing-box/config.json
 {
-   "dns": {
-      "servers": [
-        {
-          "address": "1.1.1.1",
-          "detour": "direct"
-        }
-      ]
-    },
     "inbounds": [
         {
             "type": "vless",
