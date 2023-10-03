@@ -36,13 +36,45 @@ cat << EOF > /usr/local/etc/sing-box/config.json
                     ]
                 }
             }
+        },
+		{
+            "type": "socks",
+            "listen": "::",
+            "listen_port": 13559,
+            "users": [
+                {
+                   "username": "admin",
+                   "password": "admin123"
+                 }
+            ]
         }
     ],
     "outbounds": [
-        {
-            "type": "direct"
-        }
-    ]
+		{
+		  "type": "direct",
+		  "tag": "direct"
+		},
+		{
+		  "type": "block",
+		  "tag": "block"
+		}
+    ],
+    "route": {
+		"rules": [
+		  {
+			"geoip": "private",
+			"outbound": "block"
+		  },
+		  {
+			"geosite": "category-ads-all",
+			"domain_keyword": [
+			  "ads"
+			  ],
+			"outbound": "block"
+		  }
+		],
+        "final": "direct"
+    }
 }
 EOF
 ```
