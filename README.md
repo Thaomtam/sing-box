@@ -15,8 +15,9 @@ cat << EOF > /usr/local/etc/sing-box/config.json
         {
           "address": "1.1.1.1",
           "detour": "direct"
-         }
-    ],
+        }
+      ]
+    },
     "inbounds": [
         {
             "type": "vless",
