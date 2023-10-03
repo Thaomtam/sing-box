@@ -45,7 +45,7 @@ cat << EOF > /usr/local/etc/sing-box/config.json
                 }
             }
         },
-		{
+	      	{
             "type": "socks",
             "listen": "::",
             "listen_port": 13559,
