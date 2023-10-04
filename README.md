@@ -32,12 +32,12 @@ cat << EOF > /usr/local/etc/sing-box/config.json
                 "reality": {
                     "enabled": true,
                     "handshake": {
-                        "server": "1.1.1.1",
-                        "server_port": 443
+                        "server": "",
+                        "server_port": 
                     },
-                    "private_key": "sELUHVtMZVXnBVNLOJYOR9NdpZbR7QVjS5b9X0F6iGU",
+                    "private_key": "",
                     "short_id": [
-                        "e9455277471d0a78"
+                        ""
                     ]
                 }
             }
