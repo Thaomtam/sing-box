@@ -65,7 +65,7 @@ newJson=$(echo "$json" | jq \
     --arg uuid "$uuid" \
     '.inbounds[0].tls.server_name = "'$sni'" |
 	 .inbounds[0].tls.reality.private_key = "'$pk'" | 
-     .inbounds[0].users[0].uuid = $uuid |
+     .inbounds[0].users[0].uuid = "'$uuid'" |
      .inbounds[0].tls.reality.short_id += "'$shortId'")
 echo "$newJson" | sudo tee /usr/local/etc/sing-box/config.json >/dev/null
 
