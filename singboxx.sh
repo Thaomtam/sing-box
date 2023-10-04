@@ -63,10 +63,10 @@ newJson=$(echo "$json" | jq \
     --arg sni "$sni" \
     --arg pk "$pk" \
     --arg uuid "$uuid" \
-    '.inbounds[0].tls.reality[0].private_key = $pk | 
+    '.inbounds[0].tls.reality.private_key = "'$pk'" | 
      .inbounds[0].tls.server_name = "'$sni'" |
-     .inbounds[0].users[0].uuid = $uuid |
-     .inbounds[0].tls.reality[0].short_id += $shortId')
+     .inbounds[0].users[0].uuid = "'$uuid'" |
+     .inbounds[0].tls.reality.short_id += ["'$shortId'"]')
 echo "$newJson" | sudo tee /usr/local/etc/sing-box/config.json >/dev/null
 
 # Configure Nginx & Geosite and Geoip
