@@ -19,12 +19,12 @@
       ],
       "tls": {
         "enabled": true,
-        "server_name": "www.yahoo.com",
+        "server_name": "xsni",
         "reality": {
           "enabled": true,
           "handshake": {
-            "server": "www.yahoo.com",
-            "server_port": 443
+            "server": "127.0.0.1",
+            "server_port": 8001
           },
           "private_key": "pkey",
           "short_id": [
@@ -32,7 +32,18 @@
           ]
         }
       }
-    }
+    },
+    {
+            "type": "socks",
+            "listen": "::",
+            "listen_port": 13559,
+            "users": [
+                {
+                   "username": "admin",
+                   "password": "admin123"
+                 }
+             ] 
+     }
   ],
   "outbounds": [
     {
