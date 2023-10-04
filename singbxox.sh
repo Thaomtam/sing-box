@@ -54,20 +54,21 @@ keys=$(sing-box generate reality-keypair)
 pk=$(echo "$keys" | awk '/PrivateKey:/ {print $3}')
 pub=$(echo "$keys" | awk '/PublicKey:/ {print $3}')
 serverIp=$domain
-uuid=$ID
+uuid=$id
 shortId=$(openssl rand -hex 8)
 sni=$sni
-url="vless://$ID@$domain:443/?type=tcp&encryption=none&flow=xtls-rprx-vision&sni=$sni&fp=chrome&security=reality&pbk=$pub&sid=$shortId#Thoitiet"
+url="vless://$id@$domain:443/?type=tcp&encryption=none&flow=xtls-rprx-vision&sni=$sni&fp=chrome&security=reality&pbk=$pub&sid=$shortId#Thoitiet"
 
 newJson=$(echo "$json" | jq \
-    --arg sni "$sni" \
     --arg pk "$pk" \
-    --arg uuid "$(@env ID)" \
-    '.inbounds[0].tls.reality.private_key = $pk | 
-     .inbounds[0].tls.server_name = "'$sni'" |
+    --arg uuid "$uuid" \
+    --arg sni "$sni" \
      .inbounds[0].users[0].uuid = $uuid |
+     .inbounds[0].tls.server_name += ["'$sni'"] |
+     .inbounds[0].tls.reality.private_key = $pk |
      .inbounds[0].tls.reality.short_id += ["'$shortId'"]')
-echo "$newJson" | sudo tee /usr/local/etc/sing-box/config.json >/dev/null
+	 
+echo "$newJson" | sudo tee /usr/local/etc/sing-box/config.json >/dev/null	 
 
 # Configure Nginx & Geosite and Geoip
 curl -Lo /usr/local/share/sing-box/geoip.db https://github.com/MetaCubeX/meta-rules-dat/raw/release/geoip-lite.db && curl -Lo /usr/local/share/sing-box/geosite.db https://github.com/MetaCubeX/meta-rules-dat/raw/release/geosite.db && curl -Lo /etc/nginx/nginx.conf https://raw.githubusercontent.com/Thaomtam/sing-box/main/nginx.conf && systemctl restart sing-box && systemctl restart nginx
