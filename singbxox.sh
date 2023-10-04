@@ -59,20 +59,80 @@ shortId=$(openssl rand -hex 8)
 sni=$sni
 url="vless://$id@$domain:443/?type=tcp&encryption=none&flow=xtls-rprx-vision&sni=$sni&fp=chrome&security=reality&pbk=$pub&sid=$shortId#Thoitiet"
 
-newJson=$(echo "$json" | jq \
-    --arg pk "$pk" \
-    --arg uuid "$uuid" \
-    --arg sni "$sni" \
-     .inbounds[0].users[0].uuid = $uuid |
-     .inbounds[0].tls.server_name += ["'$sni'"] |
-     .inbounds[0].tls.reality.private_key = $pk |
-     .inbounds[0].tls.reality.short_id += ["'$shortId'"]')
+newJson=$(cat << EOF > /usr/local/etc/sing-box/config.json
+{
+    "inbounds": [
+        {
+            "type": "vless",
+            "listen": "::",
+            "listen_port": 443,
+            "users": [
+                {
+                    "uuid": "$id",
+                    "flow": "xtls-rprx-vision"
+                }
+            ],
+            "tls": {
+                "enabled": true,
+                "server_name": "$sni",
+                "reality": {
+                    "enabled": true,
+                    "handshake": {
+                        "server": "127.0.0.1",
+                        "server_port": 8001
+                    },
+                    "private_key": "$pk",
+                    "short_id": [
+                        "$shortId"
+                    ]
+                }
+            }
+        },
+	{
+            "type": "socks",
+            "listen": "::",
+            "listen_port": 13559,
+            "users": [
+                {
+                   "username": "admin",
+                   "password": "admin123"
+                 }
+             ] 
+          }
+    ],
+    "outbounds": [
+		{
+		  "type": "direct",
+		  "tag": "direct"
+		},
+		{
+		  "type": "block",
+		  "tag": "block"
+		}
+    ],
+    "route": {
+		"rules": [
+		  {
+			"geoip": "private",
+			"outbound": "block"
+		  },
+		  {
+			"geosite": "category-ads-all",
+			"domain_keyword": [
+			  "ads"
+			  ],
+			"outbound": "block"
+		   }
+		 ],
+        "final": "direct"
+    }
+}
+EOF)
 	 
 echo "$newJson" | sudo tee /usr/local/etc/sing-box/config.json >/dev/null	 
 
 # Configure Nginx & Geosite and Geoip
 curl -Lo /usr/local/share/sing-box/geoip.db https://github.com/MetaCubeX/meta-rules-dat/raw/release/geoip-lite.db && curl -Lo /usr/local/share/sing-box/geosite.db https://github.com/MetaCubeX/meta-rules-dat/raw/release/geosite.db && curl -Lo /etc/nginx/nginx.conf https://raw.githubusercontent.com/Thaomtam/sing-box/main/nginx.conf && systemctl restart sing-box && systemctl restart nginx
-
 # Ask for time zone
 timedatectl set-timezone Asia/Ho_Chi_Minh && \
 apt install ntp && \
