@@ -1,0 +1,67 @@
+{
+    "inbounds": [
+        {
+            "type": "vless",
+            "listen": "::",
+            "listen_port": 443,
+            "users": [
+                {
+                    "uuid": "",
+                    "flow": "xtls-rprx-vision"
+                }
+            ],
+            "tls": {
+                "enabled": true,
+                "server_name": "",
+                "reality": {
+                    "enabled": true,
+                    "handshake": {
+                        "server": "",
+                        "server_port": 
+                    },
+                    "private_key": "",
+                    "short_id": [
+                        ""
+                    ]
+                }
+            }
+        },
+      	{
+            "type": "socks",
+            "listen": "::",
+            "listen_port": 13559,
+            "users": [
+                {
+                   "username": "admin",
+                   "password": "admin123"
+                 }
+             ] 
+          }
+    ],
+    "outbounds": [
+		{
+		  "type": "direct",
+		  "tag": "direct"
+		},
+		{
+		  "type": "block",
+		  "tag": "block"
+		}
+    ],
+    "route": {
+		"rules": [
+		  {
+			"geoip": "private",
+			"outbound": "block"
+		  },
+		  {
+			"geosite": "category-ads-all",
+			"domain_keyword": [
+			  "ads"
+			  ],
+			"outbound": "block"
+		   }
+		 ],
+        "final": "direct"
+    }
+}
