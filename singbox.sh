@@ -8,10 +8,10 @@ apt install -y snapd
 read -p "MY DOMAIN: " domain
 
 # Ask for SNI
-read -p "Bug SNI: " sni
+read -p "HACK SNI: " sni
 
 # Ask for SNI
-read -p "UUID: " id
+read -p "UUID RANDOM: " id
 
 # Install certbot
 snap install core
@@ -46,93 +46,32 @@ apt-get install -y openssl
 apt-get install -y qrencode
 
 #Install SING-BOX
-bash -c "$(curl -L https://sing-box.vercel.app)" @ install
+bash -c "$(curl -L https://sing-box.vercel.app)" @ install --tag=with_quic,with_wireguard,with_acme,with_reality_server --go
 
-json=$(curl -s https://raw.githubusercontent.com/Thaomtam/sing-box/main/config.json)
+curl -o config.json https://raw.githubusercontent.com/Thaomtam/sing-box/main/config.json && mv -f config.json /usr/local/etc/sing-box/config.json 
 
-keys=$(sing-box generate reality-keypair)
-pk=$(echo "$keys" | awk '/PrivateKey:/ {print $3}')
-pub=$(echo "$keys" | awk '/PublicKey:/ {print $3}')
-serverIp=$domain
+psni=$sni
+echo $psni
+sed -in "s/xsni/$psni/g" /usr/local/etc/sing-box/config.json
+
+result=$(sing-box generate reality-keypair)
+pkey=$(echo $result | awk -F " " '{print $2}')
+pukey=$(echo $result | awk -F " " '{print $4}')
+sed -in "s/pkey/$pkey/g" /usr/local/etc/sing-box/config.json
+
 uuid=$id
-shortId=$(openssl rand -hex 8)
-sni=$sni
-url="vless://$id@$domain:443/?type=tcp&encryption=none&flow=xtls-rprx-vision&sni=$sni&fp=chrome&security=reality&pbk=$pub&sid=$shortId#Thoitiet"
+echo $uuid
+sed -in "s/puuid/$uuid/g" /usr/local/etc/sing-box/config.json
 
-newJson=$(cat << EOF > /usr/local/etc/sing-box/config.json
-{
-    "inbounds": [
-        {
-            "type": "vless",
-            "listen": "::",
-            "listen_port": 443,
-            "users": [
-                {
-                    "uuid": "$id",
-                    "flow": "xtls-rprx-vision"
-                }
-            ],
-            "tls": {
-                "enabled": true,
-                "server_name": "$sni",
-                "reality": {
-                    "enabled": true,
-                    "handshake": {
-                        "server": "127.0.0.1",
-                        "server_port": 8001
-                    },
-                    "private_key": "$pk",
-                    "short_id": [
-                        "$shortId"
-                    ]
-                }
-            }
-        },
-	{
-            "type": "socks",
-            "listen": "::",
-            "listen_port": 13559,
-            "users": [
-                {
-                   "username": "admin",
-                   "password": "admin123"
-                 }
-             ] 
-          }
-    ],
-    "outbounds": [
-		{
-		  "type": "direct",
-		  "tag": "direct"
-		},
-		{
-		  "type": "block",
-		  "tag": "block"
-		}
-    ],
-    "route": {
-		"rules": [
-		  {
-			"geoip": "private",
-			"outbound": "block"
-		  },
-		  {
-			"geosite": "category-ads-all",
-			"domain_keyword": [
-			  "ads"
-			  ],
-			"outbound": "block"
-		   }
-		 ],
-        "final": "direct"
-    }
-}
-EOF)
-	 
-echo "$newJson" | sudo tee /usr/local/etc/sing-box/config.json >/dev/null	 
+shortid=$(openssl rand -hex 8)
+echo $shortid
+sed -in "s/pshortid/$shortid/g" /usr/local/etc/sing-box/config.json
 
 # Configure Nginx & Geosite and Geoip
 curl -Lo /usr/local/share/sing-box/geoip.db https://github.com/MetaCubeX/meta-rules-dat/raw/release/geoip-lite.db && curl -Lo /usr/local/share/sing-box/geosite.db https://github.com/MetaCubeX/meta-rules-dat/raw/release/geosite.db && curl -Lo /etc/nginx/nginx.conf https://raw.githubusercontent.com/Thaomtam/sing-box/main/nginx.conf && systemctl restart sing-box && systemctl restart nginx
+
+url="vless://$id@$domain:443/?type=tcp&encryption=none&flow=xtls-rprx-vision&sni=$sni&fp=chrome&security=reality&pbk=$pukey&sid=$shortid#Thoitiet"
+
 # Ask for time zone
 timedatectl set-timezone Asia/Ho_Chi_Minh && \
 apt install ntp && \
