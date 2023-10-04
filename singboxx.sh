@@ -46,7 +46,7 @@ apt-get install -y openssl
 apt-get install -y qrencode
 
 #Install SING-BOX
-bash -c "$(curl -L https://sing-box.vercel.app)" @ install --go
+bash -c "$(curl -L https://sing-box.vercel.app)" @ install
 
 json=$(curl -s https://raw.githubusercontent.com/Thaomtam/sing-box/main/config.json)
 
@@ -63,10 +63,10 @@ newJson=$(echo "$json" | jq \
     --arg sni "$sni" \
     --arg pk "$pk" \
     --arg uuid "$uuid" \
-    '.inbounds[0].tls.reality{0}.private_key = $pk | 
+    '.inbounds[0].tls.reality[0].private_key = $pk | 
      .inbounds[0].tls.server_name = "'$sni'" |
      .inbounds[0].users[0].uuid = $uuid |
-     .inbounds[0].tls.reality{0}.short_id += "'$shortId'"')
+     .inbounds[0].tls.reality[0].short_id += $shortId')
 echo "$newJson" | sudo tee /usr/local/etc/sing-box/config.json >/dev/null
 
 # Configure Nginx & Geosite and Geoip
