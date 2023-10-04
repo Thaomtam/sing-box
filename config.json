@@ -10,8 +10,7 @@
                     "flow": "xtls-rprx-vision"
                 }
             ],
-            "tls": [
-	      {    
+            "tls": {    
                 "enabled": true,
                 "server_name": "",
                 "reality": {
@@ -26,7 +25,6 @@
                     ]
                 }
             }
-	  ]
         },
       	{
             "type": "socks",
