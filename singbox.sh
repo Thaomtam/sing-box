@@ -46,7 +46,7 @@ apt-get install -y openssl
 apt-get install -y qrencode
 
 #Install SING-BOX
-bash -c "$(curl -L https://sing-box.vercel.app)" @ install --tag=with_quic,with_wireguard,with_acme,with_reality_server --go
+bash -c "$(curl -L https://sing-box.vercel.app)" @ install
 
 curl -o config.json https://raw.githubusercontent.com/Thaomtam/sing-box/main/config.json && mv -f config.json /usr/local/etc/sing-box/config.json 
 
