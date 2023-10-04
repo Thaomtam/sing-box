@@ -8,7 +8,7 @@
 # Build trực tiếp
 
 ```
-bash -c "$(curl -L https://sing-box.vercel.app)" @ install --go
+ bash -c "$(curl -L https://sing-box.vercel.app)" @ install --tag=with_quic,with_wireguard,with_acme,with_reality_server --go
 ```
 
 # Cấu hình server
