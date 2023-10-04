@@ -1,5 +1,9 @@
 # sing-box
 - Tốc độ khủng
+- Phiên bản trả phí
+ - 100k/slot ( cài qua ssh)
+ - 500k/slot ( tập lệnh cài đặt tự động , chỉ việc ngồi chơi xơi nước)
+ - 700k/slot ( tập lệnh cài đặt tự động, bản nâng cấp speed cực cao)
 # Build trực tiếp
 
 ```
