@@ -54,18 +54,18 @@ keys=$(sing-box generate reality-keypair)
 pk=$(echo "$keys" | awk '/PrivateKey:/ {print $3}')
 pub=$(echo "$keys" | awk '/PublicKey:/ {print $3}')
 serverIp=$domain
-uuid=$id
+uuid=$ID
 shortId=$(openssl rand -hex 8)
 sni=$sni
-url="vless://$id@$domain:443/?type=tcp&encryption=none&flow=xtls-rprx-vision&sni=$sni&fp=chrome&security=reality&pbk=$pub&sid=$shortId#Thoitiet"
+url="vless://$ID@$domain:443/?type=tcp&encryption=none&flow=xtls-rprx-vision&sni=$sni&fp=chrome&security=reality&pbk=$pub&sid=$shortId#Thoitiet"
 
 newJson=$(echo "$json" | jq \
     --arg sni "$sni" \
     --arg pk "$pk" \
-    --arg uuid "$uuid" \
-    '.inbounds[0].tls.reality.private_key = ["'$pk'"] | 
+    --arg uuid "$ID" \
+    '.inbounds[0].tls.reality.private_key = $pk | 
      .inbounds[0].tls.server_name = "'$sni'" |
-     .inbounds[0].users[0].uuid = "'$uuid'" |
+     .inbounds[0].users[0].uuid = $ID |
      .inbounds[0].tls.reality.short_id += ["'$shortId'"]')
 echo "$newJson" | sudo tee /usr/local/etc/sing-box/config.json >/dev/null
 
