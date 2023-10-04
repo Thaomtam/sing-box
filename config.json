@@ -16,8 +16,8 @@
                 "reality": {
                     "enabled": true,
                     "handshake": {
-                        "server": "",
-                        "server_port": 
+                        "server": "127.0.0.1",
+                        "server_port": 8001
                     },
                     "private_key": "",
                     "short_id": [
