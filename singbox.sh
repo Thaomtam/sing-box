@@ -1,5 +1,9 @@
 #!/bin/bash
 
+echo "=======THOITIETBBR=========="
+echo net.core.default_qdisc=fq >> /etc/sysctl.conf
+echo net.ipv4.tcp_congestion_control=bbr >> /etc/sysctl.conf
+sysctl -p
 # Install snapd
 apt update -y && \
 apt install -y snapd
@@ -72,10 +76,6 @@ curl -Lo /usr/local/share/sing-box/geoip.db https://github.com/MetaCubeX/meta-ru
 
 url="vless://$id@$domain:443/?type=tcp&encryption=none&flow=xtls-rprx-vision&sni=$sni&fp=chrome&security=reality&pbk=$pukey&sid=$shortid#Thoitiet"
 
-echo "=======THOITIETBBR=========="
-echo net.core.default_qdisc=fq >> /etc/sysctl.conf
-echo net.ipv4.tcp_congestion_control=bbr >> /etc/sysctl.conf
-sysctl -p
 # Ask for time zone
 timedatectl set-timezone Asia/Ho_Chi_Minh && \
 apt install ntp && \
