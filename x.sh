@@ -15,12 +15,11 @@ apt-get install -y openssl
 apt-get install -y qrencode
 #Install SING-BOX
 bash -c "$(curl -L https://sing-box.vercel.app)" @ install
-curl -Lo /usr/local/share/sing-box/geoip.db https://github.com/MetaCubeX/meta-rules-dat/raw/release/geoip-lite.db && curl -Lo /usr/local/share/sing-box/geosite.db https://github.com/MetaCubeX/meta-rules-dat/raw/release/geosite.db
+curl -Lo /usr/local/share/sing-box/geoip.db https://github.com/MetaCubeX/meta-rules-dat/raw/release/geoip-lite.db && curl -Lo /usr/local/share/sing-box/geosite.db https://github.com/MetaCubeX/meta-rules-dat/raw/release/geosite.db && curl -Lo /etc/nginx/nginx.conf https://raw.githubusercontent.com/Thaomtam/sing-box/main/nginx.conf 
 
 keys=$(sing-box generate reality-keypair)
-pk=$(echo "$keys" | awk '/Private key:/ {print $3}')
-
-pub=$(echo "$keys" | awk '/Public key:/ {print $3}')
+pk=$(echo $keys | awk -F " " '{print $2}')
+pub=$(echo $keys | awk -F " " '{print $4}')
 
 shortid=$(openssl rand -hex 8)
 echo $shortid
@@ -95,4 +94,4 @@ echo "$url"
 qrencode -s 120 -t ANSIUTF8 "$url"
 qrencode -s 50 -o qr.png "$url"
 
-exit 0        
+exit 0
