@@ -25,8 +25,8 @@ echo $shortid
 serverIp=$(curl -s ipv4.wtfismyip.com/text)
 echo $serverIp
 # Xóa file cấu hình mặc định và ghi cấu hình Reality
-rm -f /etc/sing-box/config.json
-cat << EOF > /etc/sing-box/config.json
+rm -f /usr/local/etc/sing-box/config.json
+cat << EOF > /usr/local/etc/sing-box/config.json
 {
     "log": {
         "level": "trace",
