@@ -19,6 +19,7 @@ curl -Lo /usr/local/share/sing-box/geoip.db https://github.com/MetaCubeX/meta-ru
 
 keys=$(sing-box generate reality-keypair)
 pk=$(echo "$keys" | awk '/Private key:/ {print $3}')
+
 pub=$(echo "$keys" | awk '/Public key:/ {print $3}')
 
 shortid=$(openssl rand -hex 8)
