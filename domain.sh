@@ -61,8 +61,10 @@ apt install -y gnupg2 ca-certificates lsb-release ubuntu-keyring && curl https:/
 apt-get install -y jq
 apt-get install -y openssl
 apt-get install -y qrencode
+
 #Install SING-BOX
-bash -c "$(curl -L https://sing-box.vercel.app)" @ install --go
+bash -c "$(curl -L https://sing-box.vercel.app)" @ install --beta
+
 curl -Lo /usr/local/share/sing-box/geoip.db https://github.com/MetaCubeX/meta-rules-dat/raw/release/geoip-lite.db && curl -Lo /usr/local/share/sing-box/geosite.db https://github.com/MetaCubeX/meta-rules-dat/raw/release/geosite.db && curl -Lo /etc/nginx/nginx.conf https://raw.githubusercontent.com/Thaomtam/sing-box/main/nginx.conf 
 
 keys=$(sing-box generate reality-keypair)
