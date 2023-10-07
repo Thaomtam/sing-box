@@ -3,6 +3,10 @@
 # Install snapd
 apt update -y
 
+echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
+echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
+sysctl -p
+
 ufw dissable
 
 # Ask for SNI
@@ -169,10 +173,6 @@ cat << EOF > /usr/local/etc/xray/config.json
 EOF
 
 systemctl restart xray
-
-echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
-echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
-sysctl -p
 
 url="vless://$id@$serverIp:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$sni&fp=chrome&pbk=$pub&sid=$shortid&type=tcp&headerType=none#THOITIET-XRAY"
 echo "$url"
