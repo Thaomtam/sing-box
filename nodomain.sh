@@ -44,7 +44,7 @@ cat << EOF > /usr/local/etc/sing-box/config.json
             "users": [
                 {
                     "uuid": "$id",
-                    "flow": "xtls-rprx-vision"
+                    "flow": "xtls-rprx-visiom"
                 }
             ],
             "tls": {
