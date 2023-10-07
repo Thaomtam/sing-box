@@ -1,180 +1,50 @@
-#!/bin/bash
-
-# Install snapd
-apt update -y
+# Update package index and install dependencies
+apt-get update
+apt-get install -y jq
+apt-get install -y openssl
+apt-get install -y qrencode
 
 echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
 echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
 sysctl -p
 
-ufw dissable
+read -p "SNI HACK MANG: " sni
 
-# Ask for SNI
-read -p "SNI: " sni
+read -p "UUID BAM TUY Y: " uuid
 
-# Ask for SNI
-read -p "UUID: " id
+bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install --version v1.8.3
 
-# Update package index and install dependencies
-apt-get install -y jq
-apt-get install -y openssl
-apt-get install -y qrencode
-#Install SING-BOX
-bash -c "$(curl -L https://raw.githubusercontent.com/Thaomtam/sing-box/main/phuc.sh)"
-curl -Lo /usr/local/share/sing-box/geoip.db https://github.com/MetaCubeX/meta-rules-dat/raw/release/geoip-lite.db && curl -Lo /usr/local/share/sing-box/geosite.db https://github.com/MetaCubeX/meta-rules-dat/raw/release/geosite.db
+json=$(curl -s https://raw.githubusercontent.com/Thaomtam/Oneclick-Xray-Reality/main/VLESS-H2-uTLS-REALITY.json)
 
-keys=$(sing-box generate reality-keypair)
-pk=$(echo $keys | awk -F " " '{print $2}')
-pub=$(echo $keys | awk -F " " '{print $4}')
+keys=$(xray x25519)
+pk=$(echo "$keys" | awk '/Private key:/ {print $3}')
+pub=$(echo "$keys" | awk '/Public key:/ {print $3}')
+serverIp=$(curl -s ifconfig.me)
+uuid=$uuid
+shortId=$(openssl rand -hex 8)
+sni=$sni
+url="vless://$uuid@$serverIp:443?path=%2F&security=reality&encryption=none&pbk=$pub&fp=chrome&type=http&sni=$sni&sid=$shortId#$uuid"
 
-shortid=$(openssl rand -hex 8)
-echo $shortid
+newJson=$(echo "$json" | jq \
+    --arg sni "$sni" \
+    --arg pk "$pk" \
+    --arg uuid "$uuid" \
+    '.inbounds[0].streamSettings.realitySettings.privateKey = $pk | 
+     .inbounds[0].streamSettings.realitySettings.serverNames = ["'$sni'"] |
+     .inbounds[0].settings.clients[0].id = $uuid |
+     .inbounds[0].streamSettings.realitySettings.shortIds += ["'$shortId'"]')
+echo "$newJson" | sudo tee /usr/local/etc/xray/config.json >/dev/null
 
-serverIp=$(curl -s ipv4.wtfismyip.com/text)
-echo $serverIp
+# Configure Nginx & Geosite and Geoip
+curl -Lo /usr/local/share/xray/geoip.dat https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geoip.dat && curl -Lo /usr/local/share/xray/geosite.dat https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geosite.dat && systemctl restart xray
 
-# Xóa file cấu hình mặc định và ghi cấu hình XRAY
-rm -rf /usr/local/etc/xray/config.json
-cat << EOF > /usr/local/etc/xray/config.json
-{
-    "log": {
-        "loglevel": "warning"
-    },
-    "routing": {
-        "domainStrategy": "IPIfNonMatch",
-        "rules": [
-            {
-                "type": "field",
-                "port": "443",
-                "network": "udp",
-                "outboundTag": "block"
-            },
-            {
-                "type": "field",
-                "ip": [
-                    "geoip:private"
-                ],
-                "outboundTag": "block"
-            }
-        ]
-    },
-    "inbounds": [
-        {
-            "listen": "0.0.0.0",
-            "port": 443,
-            "protocol": "vless",
-            "settings": {
-                "clients": [
-                    {
-                        "id": "$id",
-                        "flow": "xtls-rprx-vision"
-                    }
-                ],
-                "decryption": "none",
-                "fallbacks": [
-                    {
-                        "dest": "8004",
-                        "xver": 1
-                    }
-                ]
-            },
-            "streamSettings": {
-                "network": "tcp",
-                "security": "reality",
-                "realitySettings": {
-                    "dest": "1.1.1.1:443",
-                    "serverNames": [
-                        "$sni"
-                    ],
-                    "privateKey": "$pk",
-                    "shortIds": [
-                        "$shortid"
-                    ]
-                }
-            },
-            "sniffing": {
-                "enabled": false,
-                "destOverride": [
-                    "http",
-                    "tls",
-                    "quic"
-                ]
-            }
-        },
-        {
-            "listen": "127.0.0.1",
-            "port": 8004,
-            "protocol": "vless",
-            "settings": {
-                "clients": [
-                    {
-                        "id": "$id",
-                    }
-                ],
-                "decryption": "none"
-            },
-            "streamSettings": {
-                "network": "h2",
-                "sockopt": {
-                    "acceptProxyProtocol": true
-                }
-            },
-            "sniffing": {
-                "enabled": false,
-                "destOverride": [
-                    "http",
-                    "tls",
-                    "quic"
-                ]
-            }
-        },
-        {
-			"port": 80,
-			"protocol": "vmess",
-			"settings": {
-				"clients": [
-					{
-						"$id",
-						"alterId": 0
-					}
-				]
-			},
-			"streamSettings": {
-			"network": "ws",
-			"security": "none",
-			"wsSettings": {
-				"path": "/",
-				"headers": {
-					"Host": "$sni"
-				}
-			},
-			"quicSettings": {}
-		}
-    ],
-    "outbounds": [
-        {
-            "protocol": "freedom",
-            "tag": "direct"
-        },
-        {
-            "protocol": "blackhole",
-            "tag": "block"
-        }
-    ],
-    "policy": {
-        "levels": {
-            "0": {
-                "handshake": 2,
-                "connIdle": 120
-            }
-        }
-    }
-}
-EOF
+# Ask for time zone
+timedatectl set-timezone Asia/Ho_Chi_Minh && \
+apt install ntp && \
+timedatectl set-ntp on && \
+sysctl -w net.core.rmem_max=16777216 && \
+sysctl -w net.core.wmem_max=16777216
 
-systemctl restart xray
-
-url="vless://$id@$serverIp:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$sni&fp=chrome&pbk=$pub&sid=$shortid&type=tcp&headerType=none#THOITIET-XRAY"
 echo "$url"
 
 qrencode -s 120 -t ANSIUTF8 "$url"
