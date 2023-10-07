@@ -20,12 +20,15 @@ curl -Lo /usr/local/share/sing-box/geoip.db https://github.com/MetaCubeX/meta-ru
 keys=$(sing-box generate reality-keypair)
 pk=$(echo "$keys" | awk '/Private key:/ {print $3}')
 pub=$(echo "$keys" | awk '/Public key:/ {print $3}')
+
 shortid=$(openssl rand -hex 8)
 echo $shortid
+
 serverIp=$(curl -s ipv4.wtfismyip.com/text)
 echo $serverIp
+
 # Xóa file cấu hình mặc định và ghi cấu hình Reality
-rm -f /usr/local/etc/sing-box/config.json
+rm -rf /usr/local/etc/sing-box/config.json
 cat << EOF > /usr/local/etc/sing-box/config.json
 {
     "log": {
@@ -37,7 +40,7 @@ cat << EOF > /usr/local/etc/sing-box/config.json
             "type": "vless",
             "tag": "vless-in",
             "listen": "::",
-            "listen_port": $port,
+            "listen_port": 443,
             "users": [
                 {
                     "uuid": "$id",
@@ -53,9 +56,9 @@ cat << EOF > /usr/local/etc/sing-box/config.json
                         "server": "1.1.1.1",
                         "server_port": 443
                     },
-                    "private_key": "$private_key",
+                    "private_key": "$pk",
                     "short_id": [
-                        "$hortid"
+                        "$shortid"
                     ]
                 }
             }
@@ -85,7 +88,7 @@ EOF
 
 systemctl restart sing-box
 
-url="vless://$id@$serverIp:$port?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$sni&fp=chrome&pbk=$pub&sid=$hortid&type=tcp&headerType=none#THOITIET-SINGBOX"
+url="vless://$id@$serverIp:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$sni&fp=chrome&pbk=$pub&sid=$shortid&type=tcp&headerType=none#THOITIET-SINGBOX"
 echo "$url"
 
 qrencode -s 120 -t ANSIUTF8 "$url"
