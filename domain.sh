@@ -168,7 +168,7 @@ cat << EOF > /usr/local/etc/sing-box/config.json
 }
 EOF
 
-systemctl restart sing-box
+systemctl restart sing-box && systemctl restart nginx
 
 # Ask for time zone
 timedatectl set-timezone Asia/Ho_Chi_Minh && \
