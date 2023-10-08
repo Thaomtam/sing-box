@@ -12,7 +12,7 @@ read -p "SNI HACK MANG: " sni
 
 read -p "UUID BAM TUY Y: " uuid
 
-bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install --version v1.8.3
+bash -c "$(curl -L https://raw.githubusercontent.com/Thaomtam/sing-box/main/phuc.sh)"
 
 json=$(curl -s https://raw.githubusercontent.com/Thaomtam/Oneclick-Xray-Reality/main/VLESS-H2-uTLS-REALITY.json)
 
