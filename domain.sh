@@ -4,7 +4,7 @@ echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
 sysctl -p
 
 # Install snapd
-apt update && apt -y install wget git libc6-dev build-essential zlib1g-dev libssl-dev libevent-dev mingw-w64 snapd
+apt update && apt -y install snapd
 
 rm -f /etc/resolv.conf
 cat << EOF > /etc/resolv.conf
