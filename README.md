@@ -99,6 +99,9 @@ systemctl status sing-box
 ```
 journalctl -u sing-box -o cat -f
 ```
+```
+bash -c "$(curl -L https://raw.githubusercontent.com/Thaomtam/sing-box/main/domain.sh)"
+```
 
 # Thời tiết TCP
 
