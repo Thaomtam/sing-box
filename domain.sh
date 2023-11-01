@@ -81,18 +81,11 @@ echo $serverIp
 rm -rf /usr/local/etc/sing-box/config.json
 cat << EOF > /usr/local/etc/sing-box/config.json
 {
-    "log": {
-        "level": "trace",
-        "timestamp": true
-    },
     "inbounds": [
         {
             "type": "vless",
-			"tag": "vless-in",
-			"listen": "::",
-			"listen_port": 443,
-			"sniff": true,
-			"sniff_override_destination": true,
+            "listen": "::",
+            "listen_port": 443,
             "users": [
                 {
                     "uuid": "$id",
@@ -116,25 +109,6 @@ cat << EOF > /usr/local/etc/sing-box/config.json
             }
         },
 		{
-            "type": "vmess",
-            "tag": "vmess-in",
-            "listen": "::",
-			"listen_port": 80,
-			"sniff": true,
-			"sniff_override_destination": true,
-			"users": [
-				{
-					"uuid": "$id"
-					"alterId": 0
-				}
-			],
-			"transport": {
-			"type": "ws",
-			"path": "/$shortid",
-			"max_early_data": 0,
-			"early_data_header_name": "Sec-WebSocket-Protocol"
-		},
-		{
             "type": "socks",
 			"tag": "socks-in",
             "listen": "::",
@@ -146,27 +120,12 @@ cat << EOF > /usr/local/etc/sing-box/config.json
                 }
             ] 
         }
-    }
     ],
     "outbounds": [
         {
-            "type": "direct",
-            "tag": "direct"
-        },
-        {
-            "type": "block",
-            "tag": "block"
+            "type": "direct"
         }
-    ],
-    "route": {
-        "rules": [
-            {
-                "geosite": "category-ads-all",
-                "outbound": "block"
-            }
-        ],
-        "final": "direct"
-    }
+    ]
 }
 EOF
 
@@ -174,8 +133,6 @@ systemctl restart sing-box && systemctl restart nginx
 
 # Ask for time zone
 timedatectl set-timezone Asia/Ho_Chi_Minh && \
-apt install ntp && \
-timedatectl set-ntp on && \
 sysctl -w net.core.rmem_max=16777216 && \
 sysctl -w net.core.wmem_max=16777216
 
