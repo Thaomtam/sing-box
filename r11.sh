@@ -58,6 +58,8 @@ cat << EOF > /usr/local/etc/sing-box/config.json
             "type": "vless",
             "listen": "::",
             "listen_port": 443,
+            "sniff": true,
+            "sniff_override_destination": true,
             "users": [
                 {
                     "uuid": "$id",
