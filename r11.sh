@@ -30,7 +30,7 @@ echo -e "[Service]\nExecStartPost=/bin/sleep 0.1" > /etc/systemd/system/nginx.se
 systemctl daemon-reload
 
 # Install SING-BOX
-bash -c "$(curl -L https://sing-box.vercel.app)" @ install
+bash -c "$(curl -L https://sing-box.vercel.app)" @ install --beta
 
 # Retrieve necessary files for SING-BOX
 curl -Lo /usr/local/share/sing-box/geoip.db https://github.com/MetaCubeX/meta-rules-dat/raw/release/geoip-lite.db
