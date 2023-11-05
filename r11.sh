@@ -130,10 +130,7 @@ service resolvconf restart
 # Set timezone and network configurations
 timedatectl set-timezone Asia/Ho_Chi_Minh && \
 sysctl -w net.core.rmem_max=16777216 && \
-sysctl -w net.core.wmem_max=16777216 && \
-echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf && \
-echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf && \
-sysctl -p
+sysctl -w net.core.wmem_max=16777216
 
 # Generate SING-BOX URL and QR code
 url="vless://$id@$serverIp:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$sni&fp=chrome&pbk=$pub&sid=$shortid&type=tcp&headerType=none#THOITIET-SINGBOX"
