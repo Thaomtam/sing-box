@@ -15,7 +15,6 @@ apt-get install -y openssl
 apt-get install -y qrencode
 #Install SING-BOX
 bash -c "$(curl -L https://sing-box.vercel.app)" @ install
-curl -Lo /usr/local/share/sing-box/geoip.db https://github.com/MetaCubeX/meta-rules-dat/raw/release/geoip-lite.db && curl -Lo /usr/local/share/sing-box/geosite.db https://github.com/MetaCubeX/meta-rules-dat/raw/release/geosite.db && curl -Lo /etc/nginx/nginx.conf https://raw.githubusercontent.com/Thaomtam/sing-box/main/nginx.conf 
 
 keys=$(sing-box generate reality-keypair)
 pk=$(echo $keys | awk -F " " '{print $2}')
@@ -73,16 +72,7 @@ cat << EOF > /usr/local/etc/sing-box/config.json
             "type": "block",
             "tag": "block"
         }
-    ],
-    "route": {
-        "rules": [
-            {
-                "geosite": "category-ads-all",
-                "outbound": "block"
-            }
-        ],
-        "final": "direct"
-    }
+    ]
 }
 EOF
 
