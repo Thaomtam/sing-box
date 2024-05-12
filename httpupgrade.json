@@ -1,0 +1,136 @@
+{
+  "log": {
+    "level": "debug",
+    "timestamp": true
+  },
+  "dns": {
+    "servers": [
+      {
+        "tag": "local",
+        "address": "1.1.1.1"
+      },
+      {
+        "tag": "block",
+        "address": "rcode://refused"
+      }
+    ],
+    "rules": [
+      {
+        "outbound": "any",
+        "server": "local",
+        "disable_cache": true
+      },
+      {
+        "geosite": "Geosite-vn",
+        "server": "block",
+        "disable_cache": true
+      }
+    ]
+  },
+  "inbounds": [
+    {
+      "type": "vless",
+      "listen": "::",
+      "listen_port": 443,
+      "sniff": true,
+      "users": [
+        {
+          "uuid": "thoi-tiet-openwrt"
+        }
+      ],
+      "multiplex": {
+        "enabled": true
+      },
+      "transport": {
+        "type": "httpupgrade",
+        "path": "/video",
+        "headers": {
+          "Host": "m.tiktok.com"
+        }
+      }
+    },
+    {
+      "type": "vless",
+      "listen": "::",
+      "listen_port": 80,
+      "sniff": true,
+      "users": [
+        {
+          "uuid": "thoi-tiet-openwrt"
+        }
+      ],
+      "multiplex": {
+        "enabled": true
+      },
+      "transport": {
+        "type": "ws",
+        "path": "/video",
+        "headers": {
+          "Host": "m.tiktok.com"
+        }
+      }
+    },
+    {
+      "type": "socks",
+      "listen": "::",
+      "listen_port": 16557,
+      "sniff": true,
+      "users": [
+        {
+          "Username": "admin",
+          "Password": "admin123"
+        }
+      ]
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "direct",
+      "tag": "direct"
+    },
+    {
+      "type": "block",
+      "tag": "block"
+    },
+    {
+      "type": "dns",
+      "tag": "dns-out"
+    }
+  ],
+  "route": {
+    "rules": [
+      {
+        "protocol": "dns",
+        "outbound": "dns-out"
+      },
+      {
+        "geoip": "private",
+        "outbound": "block"
+      },
+      {
+        "geosite": "Geosite-vn",
+        "outbound": "block"
+      },
+      {
+        "port_range": "0:65535",
+        "outbound": "direct"
+      }
+    ],
+    "rule_set": [
+      {
+        "type": "remote",
+        "tag": "Geosite-vn",
+        "format": "binary",
+        "url": "https://github.com/Thaomtam/Geosite-vn/raw/rule-set/Geosite-vn.srs",
+        "download_detour": "direct"
+      }
+    ],
+    "final": "direct"
+  },
+  "experimental": {
+    "cache_file": {
+      "enabled": true,
+      "path": "cache.db"
+    }
+  }
+}
