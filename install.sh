@@ -48,6 +48,9 @@ mv sing-box-$SING_BOX_VERSION-linux-$ARCH/sing-box /usr/bin
 rm -rf ./sing-box-$SING_BOX_VERSION-linux-$ARCH
 rm -f ./sing-box-$SING_BOX_VERSION-linux-$ARCH.tar.gz
 
+mkdir /etc/sing-box
+echo "{}" > /etc/sing-box/config.json
+
 # Create sing-box service file
 cat <<EOF> /etc/systemd/system/sing-box.service
 [Unit]
