@@ -1,5 +1,7 @@
 #!/bin/bash
 
+apt update
+
 export SING_BOX_VERSION=1.8.13
 export ARCH=$(case "$(uname -m)" in 'x86_64') echo 'amd64';; 'x86' | 'i686' | 'i386') echo '386';; 'aarch64' | 'arm64') echo 'arm64';; 'armv7l') echo 'armv7';; 's390x') echo 's390x';; *) echo 'Unsupported server architecture';; esac)
 echo -e "\nMy server architecture is: "$ARCH
@@ -73,3 +75,5 @@ EOF
 
 # Configure sing-box with new settings
 curl -Lo /etc/sing-box/config.json https://raw.githubusercontent.com/Thaomtam/sing-box/main/httpupgrade.json && systemctl daemon-reload && systemctl enable --now sing-box
+
+wget -O tcp.sh "https://github.com/ylx2016/Linux-NetSpeed/raw/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh
