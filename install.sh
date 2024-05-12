@@ -75,5 +75,3 @@ EOF
 
 # Configure sing-box with new settings
 curl -Lo /etc/sing-box/config.json https://raw.githubusercontent.com/Thaomtam/sing-box/main/httpupgrade.json && systemctl daemon-reload && systemctl enable --now sing-box
-
-wget -O tcp.sh "https://github.com/ylx2016/Linux-NetSpeed/raw/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh
