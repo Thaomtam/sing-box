@@ -45,10 +45,13 @@ EOF
 # Restart resolvconf service
 service resolvconf restart
 
-# Set timezone and network configurations
-timedatectl set-timezone Asia/Ho_Chi_Minh
+# Set network configurations
 sysctl -w net.core.rmem_max=16777216
 sysctl -w net.core.wmem_max=16777216
+
+# Set default timezone to Asia/Ho_Chi_Minh
+timedatectl set-timezone Asia/Ho_Chi_Minh
+echo "Timezone set to Asia/Ho_Chi_Minh"
 
 # Install new sing-box version
 wget https://github.com/SagerNet/sing-box/releases/download/v$SING_BOX_VERSION/sing-box-$SING_BOX_VERSION-linux-$ARCH.tar.gz
