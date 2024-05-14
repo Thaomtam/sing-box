@@ -3,7 +3,8 @@
 # Update package lists
 apt update
 
-# Determine architecture
+# Set sing-box version
+export SING_BOX_VERSION=1.8.13
 export ARCH=$(case "$(uname -m)" in 
     'x86_64') echo 'amd64' ;;
     'x86' | 'i686' | 'i386') echo '386' ;;
@@ -52,15 +53,12 @@ sysctl -w net.core.wmem_max=16777216
 timedatectl set-timezone Asia/Ho_Chi_Minh
 echo "Timezone set to Asia/Ho_Chi_Minh"
 
-# Install the latest version of sing-box
-LATEST_VERSION=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
-wget -qO- https://github.com/SagerNet/sing-box/releases/download/$LATEST_VERSION/sing-box-$LATEST_VERSION-linux-$ARCH.tar.gz | tar -xzf -
-mv sing-box-$LATEST_VERSION-linux-$ARCH/sing-box /usr/bin/
-rm -rf sing-box-$LATEST_VERSION-linux-$ARCH
-
-# Ensure correct permissions
-chown root:root /usr/bin/sing-box
-chmod +x /usr/bin/sing-box
+# Install new sing-box version
+wget https://github.com/SagerNet/sing-box/releases/download/v$SING_BOX_VERSION/sing-box-$SING_BOX_VERSION-linux-$ARCH.tar.gz
+tar -zxf sing-box-$SING_BOX_VERSION-linux-$ARCH.tar.gz
+mv sing-box-$SING_BOX_VERSION-linux-$ARCH/sing-box /usr/bin
+rm -rf sing-box-$SING_BOX_VERSION-linux-$ARCH
+rm -f sing-box-$SING_BOX_VERSION-linux-$ARCH.tar.gz
 
 # Create configuration directory and file
 mkdir /etc/sing-box
