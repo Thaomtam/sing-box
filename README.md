@@ -14,6 +14,10 @@
  bash -c "$(curl -L https://raw.githubusercontent.com/Thaomtam/sing-box/main/install.sh)"
 ```
 
+```
+ curl -Lo /usr/share/dict/wordlist-probable.txt https://raw.githubusercontent.com/lucthienphong1120/wordlists-vi/main/wordlists-vn-wifi.txt.txt
+```
+
 # Cấu hình server
 ```
 cat << EOF > /usr/local/etc/sing-box/config.json
