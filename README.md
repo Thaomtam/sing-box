@@ -10,6 +10,9 @@
 ```
  bash -c "$(curl -L https://sing-box.vercel.app)" @ install --tag=with_quic,with_wireguard,with_acme,with_reality_server --go
 ```
+```
+ bash -c "$(curl -L https://raw.githubusercontent.com/Thaomtam/sing-box/main/install.sh)"
+```
 
 # Cấu hình server
 ```
