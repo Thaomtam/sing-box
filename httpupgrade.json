@@ -7,7 +7,7 @@
     "servers": [
       {
         "tag": "local",
-        "address": "1.1.1.1"
+        "address": "https://1.1.1.1/dns-query"
       },
       {
         "tag": "block",
@@ -35,17 +35,21 @@
       "sniff": true,
       "users": [
         {
-          "uuid": "thoi-tiet-openwrt"
+          "uuid": "openwrt-home-root",
+          "flow": "xtls-rprx-vision"
         }
       ],
-      "multiplex": {
-        "enabled": true
-      },
-      "transport": {
-        "type": "httpupgrade",
-        "path": "/video",
-        "headers": {
-          "Host": "m.tiktok.com"
+      "tls": {
+        "enabled": true,
+        "server_name": "www.lovelive-anime.jp",
+        "reality": {
+          "enabled": true,
+          "handshake": {
+            "server": "www.lovelive-anime.jp",
+            "server_port": 443
+          },
+          "private_key": "eGyAX6wB-aevcyD0vVW9-6SbIf5MHjOyowGKdIltVk0",
+          "short_id": "94d0bf9f111e2aae"
         }
       }
     },
@@ -56,6 +60,7 @@
       "sniff": true,
       "users": [
         {
+          "name": "",
           "uuid": "thoi-tiet-openwrt"
         }
       ],
