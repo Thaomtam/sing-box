@@ -41,11 +41,11 @@
       ],
       "tls": {
         "enabled": true,
-        "server_name": "www.lovelive-anime.jp",
+        "server_name": "m.youtube.com",
         "reality": {
           "enabled": true,
           "handshake": {
-            "server": "www.lovelive-anime.jp",
+            "server": "1.1.1.1",
             "server_port": 443
           },
           "private_key": "eGyAX6wB-aevcyD0vVW9-6SbIf5MHjOyowGKdIltVk0",
