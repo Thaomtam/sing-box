@@ -41,11 +41,11 @@
       ],
       "tls": {
         "enabled": true,
-        "server_name": "m.youtube.com",
+        "server_name": "m.youtube.vn",
         "reality": {
           "enabled": true,
           "handshake": {
-            "server": "1.1.1.1",
+            "server": "dl.google.com",
             "server_port": 443
           },
           "private_key": "eGyAX6wB-aevcyD0vVW9-6SbIf5MHjOyowGKdIltVk0",
