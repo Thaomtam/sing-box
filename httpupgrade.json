@@ -41,11 +41,11 @@
       ],
       "tls": {
         "enabled": true,
-        "server_name": "m.youtube.vn",
+        "server_name": "addons.mozilla.org",
         "reality": {
           "enabled": true,
           "handshake": {
-            "server": "dl.google.com",
+            "server": "addons.mozilla.org",
             "server_port": 443
           },
           "private_key": "eGyAX6wB-aevcyD0vVW9-6SbIf5MHjOyowGKdIltVk0",
