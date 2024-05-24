@@ -11,14 +11,13 @@ DEFAULT_SING_BOX_VERSION="1.8.14"
 echo -e "Phiên bản mặc định của sing-box: $DEFAULT_SING_BOX_VERSION"
 read -p "Nhập phiên bản sing-box hoặc bấm Enter để sử dụng phiên bản mặc định: " SING_BOX_VERSION_INPUT
 
-# Kiểm tra xem người dùng đã nhập gì không
 if [ -z "$SING_BOX_VERSION_INPUT" ]; then
     SING_BOX_VERSION=$DEFAULT_SING_BOX_VERSION
 else
     SING_BOX_VERSION=$SING_BOX_VERSION_INPUT
 fi
 
-export ARCH=$(case "$(uname -m)" in 
+ARCH=$(case "$(uname -m)" in 
     'x86_64') echo 'amd64' ;;
     'x86' | 'i686' | 'i386') echo '386' ;;
     'aarch64' | 'arm64') echo 'arm64' ;;
@@ -38,70 +37,209 @@ systemctl disable nginx || true
 systemctl daemon-reload
 
 # Gỡ bỏ cài đặt cũ của sing-box và nginx
-rm -rf /etc/sing-box
-rm -rf /var/lib/sing-box
-rm -f /usr/bin/sing-box
-rm -f /etc/systemd/system/sing-box.service
+rm -rf /etc/sing-box /var/lib/sing-box /usr/bin/sing-box /etc/systemd/system/sing-box.service
 apt purge -y nginx nginx-common nginx-full || true
-rm -rf /etc/nginx
-rm -rf /var/www/html
-rm -rf /var/log/nginx
-rm -rf /etc/systemd/system/nginx.service.d/
+rm -rf /etc/nginx /var/www/html /var/log/nginx /etc/systemd/system/nginx.service.d/
 
 # Tải lại máy chủ systemd
 systemctl daemon-reload
 
-# Hỏi người dùng về việc cấu hình DNS
+# Hỏi người dùng về các cấu hình tùy chọn
 read -p "Bạn muốn thiết lập cấu hình DNS không? (y/n): " dns_choice
+read -p "Bạn muốn thiết lập cấu hình mạng không? (y/n): " network_choice
+read -p "Bạn muốn thiết lập múi giờ không? (y/n): " timezone_choice
+read -p "Bạn có muốn cài đặt Nginx không? (y/n): " nginx_choice
+read -p "Bạn có muốn chạy kịch bản tối ưu hóa TCP không? (y/n): " tcp_choice
+
+# Thiết lập cấu hình DNS nếu người dùng chọn
 if [ "$dns_choice" == "y" ]; then
-    # Cấu hình cài đặt DNS
     rm -f /etc/resolv.conf
     cat << EOF > /etc/resolv.conf
-    nameserver 1.1.1.1
-    options edns0
+nameserver 1.1.1.1
+options edns0
 EOF
-    # Cài đặt và cấu hình resolvconf
     apt -y install resolvconf
     cat << EOF > /etc/resolvconf/resolv.conf.d/head
-    nameserver 1.1.1.1
-    nameserver 1.0.0.1
+nameserver 1.1.1.1
+nameserver 1.0.0.1
 EOF
-    # Khởi động lại dịch vụ resolvconf
     service resolvconf restart
 fi
 
-# Hỏi người dùng về việc cấu hình mạng
-read -p "Bạn muốn thiết lập cấu hình mạng không? (y/n): " network_choice
+# Thiết lập cấu hình mạng nếu người dùng chọn
 if [ "$network_choice" == "y" ]; then
-    # Thiết lập cấu hình mạng
     sysctl -w net.core.rmem_max=16777216
     sysctl -w net.core.wmem_max=16777216
 fi
 
-# Hỏi người dùng về việc cấu hình múi giờ
-read -p "Bạn muốn thiết lập múi giờ không? (y/n): " timezone_choice
+# Thiết lập múi giờ nếu người dùng chọn
 if [ "$timezone_choice" == "y" ]; then
-    # Thiết lập múi giờ mặc định thành Asia/Ho_Chi_Minh
     timedatectl set-timezone Asia/Ho_Chi_Minh
     echo "Múi giờ được thiết lập thành Asia/Ho_Chi_Minh"
 fi
 
-# Hỏi người dùng về việc cài đặt Nginx
-read -p "Bạn có muốn cài đặt Nginx không? (y/n): " nginx_choice
+# Cài đặt Nginx nếu người dùng chọn
 if [ "$nginx_choice" == "y" ]; then
     bash -c "$(curl -L https://raw.githubusercontent.com/Thaomtam/sing-box/main/install-nginx.sh)"
 fi
 
-# Cài đặt phiên bản mới của sing-box
+# Tải và cài đặt phiên bản mới của sing-box
 wget https://github.com/SagerNet/sing-box/releases/download/v$SING_BOX_VERSION/sing-box-$SING_BOX_VERSION-linux-$ARCH.tar.gz
 tar -zxf sing-box-$SING_BOX_VERSION-linux-$ARCH.tar.gz
 mv sing-box-$SING_BOX_VERSION-linux-$ARCH/sing-box /usr/bin
 rm -rf sing-box-$SING_BOX_VERSION-linux-$ARCH
 rm -f sing-box-$SING_BOX_VERSION-linux-$ARCH.tar.gz
 
+# Nhập các thông tin cần thiết cho cấu hình sing-box
+read -p "Nhập uuid: " ID
+read -p "Nhập SNI_443: " SNI
+read -p "Nhập SNI_80: " SNI_WS
+read -p "Nhập Path_WS: " P_S
+
 # Tạo thư mục và tệp cấu hình cho sing-box
 mkdir /etc/sing-box
-echo "{}" > /etc/sing-box/config.json
+cat <<EOF > /etc/sing-box/config.json
+{
+  "log": {
+    "level": "debug",
+    "timestamp": true
+  },
+  "dns": {
+    "servers": [
+      {
+        "tag": "local",
+        "address": "https://1.1.1.1/dns-query"
+      },
+      {
+        "tag": "block",
+        "address": "rcode://refused"
+      }
+    ],
+    "rules": [
+      {
+        "outbound": "any",
+        "server": "local",
+        "disable_cache": true
+      },
+      {
+        "geosite": "Geosite-vn",
+        "server": "block",
+        "disable_cache": true
+      }
+    ]
+  },
+  "inbounds": [
+    {
+      "type": "vless",
+      "listen": "::",
+      "listen_port": 443,
+      "sniff": true,
+      "users": [
+        {
+          "uuid": "$ID",
+          "flow": "xtls-rprx-vision"
+        }
+      ],
+      "tls": {
+        "enabled": true,
+        "server_name": "$SNI",
+        "reality": {
+          "enabled": true,
+          "handshake": {
+            "server": "127.0.0.1",
+            "server_port": 8001
+          },
+          "private_key": "eGyAX6wB-aevcyD0vVW9-6SbIf5MHjOyowGKdIltVk0",
+          "short_id": "94d0bf9f111e2aae"
+        }
+      }
+    },
+    {
+      "type": "vless",
+      "listen": "::",
+      "listen_port": 80,
+      "sniff": true,
+      "users": [
+        {
+          "uuid": "$ID"
+        }
+      ],
+      "multiplex": {
+        "enabled": true
+      },
+      "transport": {
+        "type": "ws",
+        "path": "$P_S",
+        "headers": {
+          "Host": "$SNI_WS"
+        }
+      }
+    },
+    {
+      "type": "socks",
+      "listen": "::",
+      "listen_port": 16557,
+      "sniff": true,
+      "users": [
+        {
+          "Username": "admin",
+          "Password": "admin123"
+        }
+      ]
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "direct",
+      "tag": "direct"
+    },
+    {
+      "type": "block",
+      "tag": "block"
+    },
+    {
+      "type": "dns",
+      "tag": "dns-out"
+    }
+  ],
+  "route": {
+    "rules": [
+      {
+        "protocol": "dns",
+        "outbound": "dns-out"
+      },
+      {
+        "geoip": "private",
+        "outbound": "block"
+      },
+      {
+        "geosite": "Geosite-vn",
+        "outbound": "block"
+      },
+      {
+        "port_range": "0:65535",
+        "outbound": "direct"
+      }
+    ],
+    "rule_set": [
+      {
+        "type": "remote",
+        "tag": "Geosite-vn",
+        "format": "binary",
+        "url": "https://github.com/Thaomtam/Geosite-vn/raw/rule-set/Geosite-vn.srs",
+        "download_detour": "direct"
+      }
+    ],
+    "final": "direct"
+  },
+  "experimental": {
+    "cache_file": {
+      "enabled": true,
+      "path": "cache.db"
+    }
+  }
+}
+EOF
 
 # Tạo tệp dịch vụ cho sing-box
 cat <<EOF > /etc/systemd/system/sing-box.service
@@ -123,8 +261,6 @@ LimitNOFILE=infinity
 WantedBy=multi-user.target
 EOF
 
-# Cấu hình sing-box với các thiết lập mới
-curl -Lo /etc/sing-box/config.json https://raw.githubusercontent.com/Thaomtam/sing-box/main/httpupgrade.json
 systemctl daemon-reload
 systemctl enable --now sing-box
 
