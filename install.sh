@@ -6,16 +6,12 @@ set -e
 # Cập nhật danh sách gói
 apt update
 
-# Thiết lập phiên bản mặc định của sing-box và xác định kiến trúc hệ thống
+# Thiết lập phiên bản mặc định và kiến trúc
 DEFAULT_SING_BOX_VERSION="1.8.14"
 echo -e "Phiên bản mặc định của sing-box: $DEFAULT_SING_BOX_VERSION"
 read -p "Nhập phiên bản sing-box hoặc bấm Enter để sử dụng phiên bản mặc định: " SING_BOX_VERSION_INPUT
 
-if [ -z "$SING_BOX_VERSION_INPUT" ]; then
-    SING_BOX_VERSION=$DEFAULT_SING_BOX_VERSION
-else
-    SING_BOX_VERSION=$SING_BOX_VERSION_INPUT
-fi
+SING_BOX_VERSION=${SING_BOX_VERSION_INPUT:-$DEFAULT_SING_BOX_VERSION}
 
 ARCH=$(case "$(uname -m)" in 
     'x86_64') echo 'amd64' ;;
@@ -27,21 +23,16 @@ ARCH=$(case "$(uname -m)" in
 esac)
 echo -e "\nKiến trúc máy chủ của tôi là: $ARCH"
 
-# Dừng và vô hiệu hóa dịch vụ sing-box và nginx cũ
+# Dừng và xóa các dịch vụ và gói cũ
 systemctl stop sing-box.service || true
 systemctl disable sing-box.service || true
 systemctl stop nginx || true
 systemctl disable nginx || true
-
-# Tải lại máy chủ systemd
 systemctl daemon-reload
 
-# Gỡ bỏ cài đặt cũ của sing-box và nginx
 rm -rf /etc/sing-box /var/lib/sing-box /usr/bin/sing-box /etc/systemd/system/sing-box.service
 apt purge -y nginx nginx-common nginx-full || true
 rm -rf /etc/nginx /var/www/html /var/log/nginx /etc/systemd/system/nginx.service.d/
-
-# Tải lại máy chủ systemd
 systemctl daemon-reload
 
 # Hỏi người dùng về các cấu hình tùy chọn
@@ -51,7 +42,7 @@ read -p "Bạn muốn thiết lập múi giờ không? (y/n): " timezone_choice
 read -p "Bạn có muốn cài đặt Nginx không? (y/n): " nginx_choice
 read -p "Bạn có muốn chạy kịch bản tối ưu hóa TCP không? (y/n): " tcp_choice
 
-# Thiết lập cấu hình DNS nếu người dùng chọn
+# Cấu hình DNS nếu người dùng chọn
 if [ "$dns_choice" == "y" ]; then
     rm -f /etc/resolv.conf
     cat << EOF > /etc/resolv.conf
@@ -66,78 +57,75 @@ EOF
     service resolvconf restart
 fi
 
-# Thiết lập cấu hình mạng nếu người dùng chọn
+# Cấu hình mạng nếu người dùng chọn
 if [ "$network_choice" == "y" ]; then
     sysctl -w net.core.rmem_max=16777216
     sysctl -w net.core.wmem_max=16777216
 fi
 
-# Thiết lập múi giờ nếu người dùng chọn
+# Cấu hình múi giờ nếu người dùng chọn
 if [ "$timezone_choice" == "y" ]; then
     timedatectl set-timezone Asia/Ho_Chi_Minh
     echo "Múi giờ được thiết lập thành Asia/Ho_Chi_Minh"
 fi
 
-# Cài đặt Nginx nếu người dùng chọn
+# Cài đặt và cấu hình Nginx nếu người dùng chọn
 if [ "$nginx_choice" == "y" ]; then
-#!/bin/bash
+    # Hỏi người dùng nhập domain
+    read -p "Nhập domain: " domain
 
-# Hỏi người dùng nhập domain
-read -p "Nhập domain: " domain
+    # Cài đặt Socat
+    apt install -y socat
 
-# Cài đặt Socat
-apt install -y socat
+    # Cài đặt acme.sh
+    curl https://get.acme.sh | sh
+    source ~/.bashrc
+    acme.sh --upgrade --auto-upgrade
+    acme.sh --set-default-ca --server letsencrypt
+    acme.sh --issue -d $domain --standalone --keylength ec-256
+    acme.sh --install-cert -d $domain --ecc \
+        --fullchain-file /etc/ssl/private/fullchain.cer \
+        --key-file /etc/ssl/private/private.key
+    chown -R nobody:nogroup /etc/ssl/private
 
-# Cài đặt acme.sh
-curl https://get.acme.sh | sh
-source ~/.bashrc
-acme.sh --upgrade --auto-upgrade
-acme.sh --set-default-ca --server letsencrypt
-acme.sh --issue -d $domain --standalone --keylength ec-256
-acme.sh --install-cert -d $domain --ecc \
---fullchain-file /etc/ssl/private/fullchain.cer \
---key-file /etc/ssl/private/private.key
-chown -R nobody:nogroup /etc/ssl/private
+    # Cài đặt GnuPG2, ca-certificates, lsb-release, và ubuntu-keyring
+    apt install -y gnupg2 ca-certificates lsb-release ubuntu-keyring
 
-# Cài đặt GnuPG2, ca-certificates, lsb-release, và ubuntu-keyring
-apt install -y gnupg2 ca-certificates lsb-release ubuntu-keyring
+    # Thêm kho lưu trữ Nginx và cài đặt Nginx
+    curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor > /usr/share/keyrings/nginx-archive-keyring.gpg
+    echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] http://nginx.org/packages/mainline/ubuntu `lsb_release -cs` nginx" > /etc/apt/sources.list.d/nginx.list
+    echo -e "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n" > /etc/apt/preferences.d/99nginx
+    apt update -y
+    apt install -y nginx
 
-# Thêm kho lưu trữ Nginx và cài đặt Nginx
-curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor > /usr/share/keyrings/nginx-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] http://nginx.org/packages/mainline/ubuntu `lsb_release -cs` nginx" > /etc/apt/sources.list.d/nginx.list
-echo -e "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n" > /etc/apt/preferences.d/99nginx
-apt update -y
-apt install -y nginx
+    # Tạo thư mục và file override cho Nginx service
+    mkdir -p /etc/systemd/system/nginx.service.d
+    echo -e "[Service]\nExecStartPost=/bin/sleep 0.1" > /etc/systemd/system/nginx.service.d/override.conf
+    systemctl daemon-reload
 
-# Tạo thư mục và file override cho Nginx service
-mkdir -p /etc/systemd/system/nginx.service.d
-echo -e "[Service]\nExecStartPost=/bin/sleep 0.1" > /etc/systemd/system/nginx.service.d/override.conf
-systemctl daemon-reload
+    # Tải xuống và thay thế cấu hình Nginx từ repository
+    curl -Lo /etc/nginx/nginx.conf https://raw.githubusercontent.com/Thaomtam/sing-box/main/nginx.conf
 
-# Tải xuống và thay thế cấu hình Nginx từ repository
-curl -Lo /etc/nginx/nginx.conf https://raw.githubusercontent.com/Thaomtam/sing-box/main/nginx.conf
+    # Kích hoạt Nginx khi khởi động
+    systemctl enable nginx
 
-# Kích hoạt Nginx khi khởi động
-systemctl enable nginx
-
-echo "Hoàn tất cài đặt Nginx và cấu hình SSL với acme.sh cho domain $domain"
+    echo "Hoàn tất cài đặt Nginx và cấu hình SSL với acme.sh cho domain $domain"
 fi
 
-# Tải và cài đặt phiên bản mới của sing-box
+# Tải xuống và cài đặt sing-box
 wget https://github.com/SagerNet/sing-box/releases/download/v$SING_BOX_VERSION/sing-box-$SING_BOX_VERSION-linux-$ARCH.tar.gz
 tar -zxf sing-box-$SING_BOX_VERSION-linux-$ARCH.tar.gz
 mv sing-box-$SING_BOX_VERSION-linux-$ARCH/sing-box /usr/bin
 rm -rf sing-box-$SING_BOX_VERSION-linux-$ARCH
 rm -f sing-box-$SING_BOX_VERSION-linux-$ARCH.tar.gz
 
-# Nhập các thông tin cần thiết cho cấu hình sing-box
+# Cấu hình sing-box
 read -p "Nhập uuid: " ID
 read -p "Nhập SNI_443: " SNI
 read -p "Nhập SNI_80: " SNI_WS
 read -p "Nhập Path_WS: " P_S
 
-# Tạo thư mục và tệp cấu hình cho sing-box
-mkdir /etc/sing-box
+mkdir -p /etc/sing-box
 cat <<EOF > /etc/sing-box/config.json
 {
   "log": {
@@ -281,7 +269,7 @@ cat <<EOF > /etc/sing-box/config.json
 }
 EOF
 
-# Tạo tệp dịch vụ cho sing-box
+# Tạo dịch vụ và kích hoạt sing-box
 cat <<EOF > /etc/systemd/system/sing-box.service
 [Unit]
 Description=Dịch vụ sing-box
@@ -304,13 +292,12 @@ EOF
 systemctl daemon-reload
 systemctl enable --now sing-box
 
-# Hỏi người dùng về việc chạy kịch bản tối ưu hóa TCP
-read -p "Bạn có muốn chạy kịch bản tối ưu hóa TCP không? (y/n): " choice
-if [ "$choice" == "y" ]; then
+# Tối ưu hóa TCP nếu người dùng chọn
+if [ "$tcp_choice" == "y" ]; then
     wget -O tcp.sh "https://github.com/ylx2016/Linux-NetSpeed/raw/master/tcp.sh"
     chmod +x tcp.sh
     ./tcp.sh
     rm -f tcp.sh
 fi
 
-echo "Cài đặt hoàn tất."
+echo "Hoàn tất cài đặt và cấu hình"
