@@ -287,4 +287,4 @@ if [ "$tcp_choice" == "y" ]; then
     rm -f tcp.sh
 fi
 
-echo "Hoàn tất cài đặt và cấu hình"
+echo "Hoàn tất cài đặt và cấu hình của Thời Tiết"
