@@ -79,11 +79,11 @@ if [ "$nginx_choice" == "y" ]; then
 
     # Cài đặt acme.sh
     curl https://get.acme.sh | sh
-    source ~/.bashrc
-    acme.sh --upgrade --auto-upgrade
-    acme.sh --set-default-ca --server letsencrypt
-    acme.sh --issue -d $domain --standalone --keylength ec-256
-    acme.sh --install-cert -d $domain --ecc \
+    source ~/.bashrc  # Sourcing .bashrc to add acme.sh to PATH in the current session
+    ~/.acme.sh/acme.sh --upgrade --auto-upgrade
+    ~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
+    ~/.acme.sh/acme.sh --issue -d $domain --standalone --keylength ec-256
+    ~/.acme.sh/acme.sh --install-cert -d $domain --ecc \
         --fullchain-file /etc/ssl/private/fullchain.cer \
         --key-file /etc/ssl/private/private.key
     chown -R nobody:nogroup /etc/ssl/private
@@ -202,24 +202,11 @@ cat <<EOF > /etc/sing-box/config.json
           "Host": "$SNI_WS"
         }
       }
-    },
-    {
-      "type": "socks",
-      "listen": "::",
-      "listen_port": 16557,
-      "sniff": true,
-      "users": [
-        {
-          "Username": "admin",
-          "Password": "admin123"
-        }
-      ]
     }
   ],
   "outbounds": [
     {
-      "type": "direct",
-      "tag": "direct"
+      "type": "direct"
     },
     {
       "type": "block",
