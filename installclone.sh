@@ -4,7 +4,7 @@
 apt update
 
 # Set sing-box version
-export SING_BOX_VERSION=1.8.14
+export SING_BOX_VERSION=1.9.0
 export ARCH=$(case "$(uname -m)" in 
     'x86_64') echo 'amd64' ;;
     'x86' | 'i686' | 'i386') echo '386' ;;
