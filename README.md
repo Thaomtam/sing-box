@@ -10,10 +10,15 @@
 ```
  bash -c "$(curl -L https://sing-box.vercel.app)" @ install --tag=with_quic,with_wireguard,with_acme,with_reality_server --go
 ```
+-- Lệnh cài sing-box
 ```
  bash -c "$(curl -L https://raw.githubusercontent.com/Thaomtam/sing-box/main/install.sh)"
 ```
-
+-- Lệnh Update core sing-box
+```
+ bash -c "$(curl -L https://raw.githubusercontent.com/Thaomtam/sing-box/main/update-core.sh)
+```
+-- Lệnh workdlists hack wifi
 ```
  curl -Lo /usr/share/dict/wordlist-probable.txt https://raw.githubusercontent.com/lucthienphong1120/wordlists-vi/main/wordlists-vn-wifi.txt.txt
 ```
