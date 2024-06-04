@@ -19,11 +19,6 @@
         "outbound": "any",
         "server": "local",
         "disable_cache": true
-      },
-      {
-        "geosite": "Geosite-vn",
-        "server": "block",
-        "disable_cache": true
       }
     ]
   },
@@ -32,7 +27,6 @@
       "type": "vless",
       "listen": "::",
       "listen_port": 443,
-      "sniff": true,
       "users": [
         {
           "uuid": "openwrt-home-root",
@@ -41,11 +35,11 @@
       ],
       "tls": {
         "enabled": true,
-        "server_name": "addons.mozilla.org",
+        "server_name": "xnxx.khosihuythao.com",
         "reality": {
           "enabled": true,
           "handshake": {
-            "server": "addons.mozilla.org",
+            "server": "xnxx.khosihuythao.com",
             "server_port": 443
           },
           "private_key": "eGyAX6wB-aevcyD0vVW9-6SbIf5MHjOyowGKdIltVk0",
@@ -57,7 +51,6 @@
       "type": "vless",
       "listen": "::",
       "listen_port": 80,
-      "sniff": true,
       "users": [
         {
           "name": "",
@@ -79,7 +72,6 @@
       "type": "socks",
       "listen": "::",
       "listen_port": 16557,
-      "sniff": true,
       "users": [
         {
           "Username": "admin",
@@ -113,21 +105,8 @@
         "outbound": "block"
       },
       {
-        "geosite": "Geosite-vn",
-        "outbound": "block"
-      },
-      {
         "port_range": "0:65535",
         "outbound": "direct"
-      }
-    ],
-    "rule_set": [
-      {
-        "type": "remote",
-        "tag": "Geosite-vn",
-        "format": "binary",
-        "url": "https://github.com/Thaomtam/Geosite-vn/raw/rule-set/Geosite-vn.srs",
-        "download_detour": "direct"
       }
     ],
     "final": "direct"
