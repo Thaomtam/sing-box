@@ -16,7 +16,7 @@
 ```
 -- Lệnh Update core sing-box
 ```
- bash -c "$(curl -L https://raw.githubusercontent.com/Thaomtam/sing-box/main/update-core.sh)
+ bash -c "$(curl -L https://raw.githubusercontent.com/Thaomtam/sing-box/main/update-core.sh)"
 ```
 -- Lệnh workdlists hack wifi
 ```
