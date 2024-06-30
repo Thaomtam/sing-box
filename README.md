@@ -1,15 +1,4 @@
-# sing-box
-- Tốc độ khủng
-- Phiên bản trả phí
- - 100k/slot ( cài qua ssh)
- - 500k/slot ( tập lệnh cài đặt tự động , chỉ việc ngồi chơi xơi nước)
- - 700k/slot ( tập lệnh cài đặt tự động, bản nâng cấp speed cực cao)
- - Chat telegram : t.me/openwrtthoitiet
-# Build trực tiếp
 
-```
- bash -c "$(curl -L https://sing-box.vercel.app)" @ install --tag=with_quic,with_wireguard,with_acme,with_reality_server --go
-```
 -- Lệnh cài sing-box
 ```
  bash -c "$(curl -L https://raw.githubusercontent.com/Thaomtam/sing-box/main/install.sh)"
@@ -18,82 +7,13 @@
 ```
  bash -c "$(curl -L https://raw.githubusercontent.com/Thaomtam/sing-box/main/update-core.sh)"
 ```
+-- Lệnh Update hidify-core sing-box
+```
+ bash -c "$(curl -L https://raw.githubusercontent.com/Thaomtam/sing-box/main/hiddify-core.sh)"
+```
 -- Lệnh workdlists hack wifi
 ```
  curl -Lo /usr/share/dict/wordlist-probable.txt https://raw.githubusercontent.com/lucthienphong1120/wordlists-vi/main/wordlists-vn-wifi.txt.txt
-```
-
-# Cấu hình server
-```
-cat << EOF > /usr/local/etc/sing-box/config.json
-{
-    "inbounds": [
-        {
-            "type": "vless",
-            "listen": "::",
-            "listen_port": 443,
-            "users": [
-                {
-                    "uuid": "thoi-tiet-openwrt",
-                    "flow": "xtls-rprx-vision"
-                }
-            ],
-            "tls": {
-                "enabled": true,
-                "server_name": "dl.kgvn.garenanow.com",
-                "reality": {
-                    "enabled": true,
-                    "handshake": {
-                        "server": "",
-                        "server_port": 
-                    },
-                    "private_key": "",
-                    "short_id": [
-                        ""
-                    ]
-                }
-            }
-        },
-	{
-            "type": "socks",
-            "listen": "::",
-            "listen_port": 13559,
-            "users": [
-                {
-                   "username": "admin",
-                   "password": "admin123"
-                 }
-             ] 
-          }
-    ],
-    "outbounds": [
-		{
-		  "type": "direct",
-		  "tag": "direct"
-		},
-		{
-		  "type": "block",
-		  "tag": "block"
-		}
-    ],
-    "route": {
-		"rules": [
-		  {
-			"geoip": "private",
-			"outbound": "block"
-		  },
-		  {
-			"geosite": "category-ads-all",
-			"domain_keyword": [
-			  "ads"
-			  ],
-			"outbound": "block"
-		   }
-		 ],
-        "final": "direct"
-    }
-}
-EOF
 ```
 
 # Khởi động lại
