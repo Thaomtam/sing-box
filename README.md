@@ -15,6 +15,10 @@
 ```
  curl -Lo /usr/share/dict/wordlist-probable.txt https://raw.githubusercontent.com/lucthienphong1120/wordlists-vi/main/wordlists-vn-wifi.txt.txt
 ```
+#####
+```
+bash -c "$(curl -L https://raw.githubusercontent.com/Thaomtam/sing-box/main/singbox.sh)"
+```
 
 # Khởi động lại
 
