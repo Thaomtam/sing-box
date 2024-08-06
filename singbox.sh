@@ -54,8 +54,8 @@ echo '{
       "listen_port": 16557,
       "users": [
         {
-          "Username": "thoitiet",
-          "Password": "thoitiet"
+          "Username": "admin123",
+          "Password": "admin123123"
         }
       ]
     }
