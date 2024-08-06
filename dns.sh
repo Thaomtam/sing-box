@@ -6,30 +6,33 @@ if [ "$(id -u)" != "0" ]; then
     exit 1
 fi
 
-# Xóa tệp /etc/resolv.conf hiện tại và cấu hình DNS mới
-rm -f /etc/resolv.conf
-cat << EOF > /etc/resolv.conf
-nameserver 1.1.1.1
-options edns0
-EOF
-
 # Kiểm tra và cài đặt gói resolvconf nếu chưa cài đặt
 if ! dpkg -l | grep -q resolvconf; then
     apt update
     apt -y install resolvconf
 fi
 
-# Cấu hình resolvconf
-cat << EOF > /etc/resolvconf/resolv.conf.d/head
-nameserver 1.1.1.1
-nameserver 1.0.0.1
+# Cấu hình systemd-resolved
+echo "Configuring systemd-resolved to use DNS 1.1.1.1"
+
+# Tạo thư mục /etc/systemd/resolved.conf.d nếu chưa tồn tại
+mkdir -p /etc/systemd/resolved.conf.d
+
+# Tạo tệp cấu hình DNS
+cat << EOF > /etc/systemd/resolved.conf.d/dns_servers.conf
+[Resolve]
+DNS=1.1.1.1
+FallbackDNS=1.0.0.1
 EOF
 
-# Khởi động lại dịch vụ resolvconf
-systemctl restart resolvconf
+# Khởi động lại dịch vụ systemd-resolved
+systemctl restart systemd-resolved
+
+# Tạo liên kết tượng trưng đến /run/systemd/resolve/resolv.conf
+ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 
 echo "DNS configuration is complete."
 
 # Hiển thị DNS hiện tại
 echo "Current DNS settings:"
-cat /etc/resolv.conf
+systemd-resolve --status
