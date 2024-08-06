@@ -35,4 +35,4 @@ echo "DNS configuration is complete."
 
 # Hiển thị DNS hiện tại
 echo "Current DNS settings:"
-systemd-resolve --status
+resolvectl status
