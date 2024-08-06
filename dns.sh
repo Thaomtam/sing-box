@@ -21,7 +21,7 @@ mkdir -p /etc/systemd/resolved.conf.d
 # Tạo tệp cấu hình DNS
 cat << EOF > /etc/systemd/resolved.conf.d/dns_servers.conf
 [Resolve]
-DNS=1.1.1.1 1.0.0.1
+DNS=1.1.1.1
 EOF
 
 # Khởi động lại dịch vụ systemd-resolved
@@ -33,7 +33,7 @@ ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 # Cấu hình DNS cho tất cả các giao diện mạng
 for interface in $(ls /sys/class/net/ | grep -v lo); do
     echo "Configuring DNS for interface $interface"
-    resolvectl dns "$interface" 1.1.1.1 1.0.0.1
+    resolvectl dns "$interface" 1.1.1.1
 done
 
 echo "DNS configuration is complete."
