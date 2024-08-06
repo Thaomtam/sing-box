@@ -31,6 +31,13 @@ systemctl restart systemd-resolved
 # Tạo liên kết tượng trưng đến /run/systemd/resolve/resolv.conf
 ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 
+# Cấu hình DNS cho tất cả các giao diện mạng
+for interface in $(ls /sys/class/net/ | grep -v lo); do
+    echo "Configuring DNS for interface $interface"
+    resolvectl dns "$interface" 1.1.1.1
+    resolvectl dns "$interface" 1.0.0.1 --fallback
+done
+
 echo "DNS configuration is complete."
 
 # Hiển thị DNS hiện tại
