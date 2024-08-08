@@ -22,7 +22,7 @@ fi
 rm -f /usr/bin/sing-box
 
 # Download and extract sing-box
-DOWNLOAD_URL="https://github.com/Thaomtam/hiddify-sing-box/releases/download/main/sing-box-linux-$ARCH.zip"
+DOWNLOAD_URL="https://github.com/Thaomtam/hiddify-singbox/releases/download/sb101/sing-box-linux-$ARCH.zip"
 curl -L -o "$TMP_DIR/sing-box-linux-$ARCH.zip" "$DOWNLOAD_URL" || { echo "Failed to download sing-box"; exit 1; }
 unzip "$TMP_DIR/sing-box-linux-$ARCH.zip" -d "$TMP_DIR" || { echo "Failed to extract sing-box"; exit 1; }
 
