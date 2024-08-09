@@ -1,35 +1,114 @@
 #!/bin/bash
 
-# Đặt phiên bản sing-box và xác định kiến trúc của máy chủ
-export SING_BOX_VERSION=1.9.3
+# Xác định kiến trúc của máy chủ
 export ARCH=$(case "$(uname -m)" in 
-    'x86_64') echo 'amd64';; 
-    'x86' | 'i686' | 'i386') echo '386';; 
-    'aarch64' | 'arm64') echo 'arm64';; 
-    'armv7l') echo 'armv7';; 
-    's390x') echo 's390x';; 
-    *) echo '不支持的服务器架构'; exit 1;; 
+    'x86_64') echo 'amd64' ;;
+    'x86' | 'i686' | 'i386') echo '386' ;;
+    'aarch64' | 'arm64') echo 'arm64' ;;
+    'armv7l') echo 'armv7' ;;
+    's390x') echo 's390x' ;;
+    *) echo 'Unsupported server architecture'; exit 1 ;;
 esac)
+echo -e "\nMy server architecture is: $ARCH"
 
-echo -e "\n我的服务器架构是：$ARCH"
+# Tạo thư mục tạm thời
+TMP_DIR=$(mktemp -d)
+if [ ! -d "$TMP_DIR" ]; then
+  echo "Failed to create temporary directory"
+  exit 1
+fi
 
-# Tải về và giải nén gói sing-box
-wget https://github.com/SagerNet/sing-box/releases/download/v$SING_BOX_VERSION/sing-box-$SING_BOX_VERSION-linux-$ARCH.tar.gz
-tar -zxf sing-box-$SING_BOX_VERSION-linux-$ARCH.tar.gz
+# Loại bỏ phiên bản sing-box cũ nếu có
+rm -f /usr/bin/sing-box
+
+# Lấy tag phiên bản mới nhất từ kho lưu trữ của bạn
+LATEST_TAG=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/Thaomtam/hiddify-singbox/releases/latest | awk -F/ '{print $NF}')
+
+# Tạo URL tải xuống cho tệp ZIP
+DOWNLOAD_URL="https://github.com/Thaomtam/hiddify-singbox/releases/download/${LATEST_TAG}/sing-box-linux-$ARCH.zip"
+
+# Tải xuống và giải nén gói sing-box
+curl -L -o "$TMP_DIR/sing-box-linux-$ARCH.zip" "$DOWNLOAD_URL" || { echo "Failed to download sing-box"; exit 1; }
+unzip "$TMP_DIR/sing-box-linux-$ARCH.zip" -d "$TMP_DIR" || { echo "Failed to extract sing-box"; exit 1; }
 
 # Di chuyển tệp thực thi vào thư mục /usr/bin
-mv sing-box-$SING_BOX_VERSION-linux-$ARCH/sing-box /usr/bin
-rm -rf ./sing-box-$SING_BOX_VERSION-linux-$ARCH
-rm -f ./sing-box-$SING_BOX_VERSION-linux-$ARCH.tar.gz
+mv "$TMP_DIR/sing-box" /usr/bin || { echo "Failed to move sing-box binary"; exit 1; }
 
-# Tạo thư mục cấu hình và tạo tệp config.json
-mkdir /etc/sing-box
+# Xóa các tệp tạm thời
+rm -rf "$TMP_DIR"
+
+# Tạo thư mục cấu hình
+mkdir -p /etc/sing-box
+
+# Tạo tệp cấu hình mặc định (có thể tuỳ chỉnh theo yêu cầu của bạn)
 echo '{
+  "log": {
+    "disabled": false,
+    "level": "warning",
+    "timestamp": true
+  },
+  "dns": {
+    "servers": [
+      {
+        "tag": "dns-remote",
+        "address": "udp://1.1.1.1",
+        "address_resolver": "dns-direct"
+      },
+      {
+        "tag": "dns-trick-direct",
+        "address": "https://m.tiktok.com/",
+        "detour": "direct-fragment"
+      },
+      {
+        "tag": "dns-direct",
+        "address": "1.1.1.1",
+        "address_resolver": "dns-local",
+        "detour": "direct"
+      },
+      {
+        "tag": "dns-local",
+        "address": "local",
+        "detour": "direct"
+      },
+      {
+        "tag": "dns-block",
+        "address": "rcode://refused"
+      }
+    ],
+    "rules": [
+      {
+        "outbound": "any",
+        "server": "dns-local",
+        "disable_cache": true
+      }
+    ],
+    "final": "dns-remote",
+    "strategy": "prefer_ipv4",
+    "static_ips": {
+      "m.tiktok.com": [
+        "72.247.127.187",
+        "72.247.127.192",
+        "72.247.127.193",
+        "72.247.127.194",
+        "72.247.127.195",
+        "72.247.127.200",
+        "72.247.127.201",
+        "72.247.127.202",
+        "72.247.127.203",
+        "72.247.127.208",
+        "72.247.127.209",
+        "125.56.219.74",
+        "125.56.219.75",
+        "125.56.219.81"
+      ]
+    },
+    "independent_cache": true
+  },
   "inbounds": [
     {
       "type": "vless",
-      "listen": "127.0.0.1",
-      "listen_port": 8001,
+      "listen": "::",
+      "listen_port": 80,
       "sniff": true,
       "users": [
         {
@@ -62,9 +141,49 @@ echo '{
   ],
   "outbounds": [
     {
-      "type": "direct"
+      "type": "dns",
+      "tag": "dns-out"
+    },
+    {
+      "type": "direct",
+      "tag": "direct"
+    },
+    {
+      "type": "direct",
+      "tag": "direct-fragment",
+      "tls_fragment": {
+        "enabled": true,
+        "size": "10-30",
+        "sleep": "2-8"
+      }
+    },
+    {
+      "type": "block",
+      "tag": "block"
     }
-  ]
+  ],
+  "route": {
+    "rules": [
+      {
+        "protocol": "dns",
+        "port": 53,
+        "outbound": "dns-out"
+      },
+      {
+        "ip_is_private": true,
+        "outbound": "direct"
+      },
+      {
+        "network": [
+          "udp","tcp"
+        ],
+        "outbound": "direct"
+      }
+    ],
+    "final": "direct",
+    "auto_detect_interface": true
+  },
+  "experimental": {}
 }' > /etc/sing-box/config.json
 
 # Tạo tệp dịch vụ systemd cho sing-box
@@ -89,4 +208,4 @@ EOF
 
 # Tải lại daemon và kích hoạt dịch vụ
 systemctl daemon-reload
-echo "Tập lệnh đã hoàn thành. Bạn có thể khởi động dịch vụ sing-box bằng cách chạy: systemctl start sing-box"
+echo "Setup complete. You can start the sing-box service by running: systemctl start sing-box"
