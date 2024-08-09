@@ -44,7 +44,7 @@ mkdir -p /etc/sing-box
 echo '{
   "log": {
     "disabled": false,
-    "level": "warning",
+    "level": "info",
     "timestamp": true
   },
   "dns": {
@@ -207,5 +207,5 @@ WantedBy=multi-user.target
 EOF
 
 # Tải lại daemon và kích hoạt dịch vụ
-systemctl daemon-reload
-echo "Setup complete. You can start the sing-box service by running: systemctl start sing-box"
+systemctl daemon-reload && systemctl enable sing-box && systemctl restart sing-box
+echo "Setup complete."
