@@ -27,6 +27,14 @@ DOWNLOAD_URL="${LATEST_URL}/download/sing-box-linux-$ARCH.zip"
 
 # Download and extract sing-box
 curl -L -o "$TMP_DIR/sing-box-linux-$ARCH.zip" "$DOWNLOAD_URL" || { echo "Failed to download sing-box"; exit 1; }
+
+# Check if the file is not empty or invalid
+if [ ! -s "$TMP_DIR/sing-box-linux-$ARCH.zip" ]; then
+  echo "Downloaded file is empty or invalid"
+  exit 1
+fi
+
+# Extract sing-box
 unzip "$TMP_DIR/sing-box-linux-$ARCH.zip" -d "$TMP_DIR" || { echo "Failed to extract sing-box"; exit 1; }
 
 # Move sing-box binary
