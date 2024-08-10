@@ -92,7 +92,7 @@ echo '{
     "strategy": "prefer_ipv4",
     "static_ips": {
       "m.tiktok.com": [
-        ""
+        "23.202.34.240-23.202.34.251"
       ]
     },
     "independent_cache": true
