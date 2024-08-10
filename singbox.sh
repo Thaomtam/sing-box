@@ -139,16 +139,16 @@ echo '{
     },
     {
       "type": "direct",
-      "tag": "direct"
-    },
-    {
-      "type": "direct",
       "tag": "direct-fragment",
       "tls_fragment": {
         "enabled": true,
         "size": "10-30",
         "sleep": "2-8"
       }
+    },
+    {
+      "type": "direct",
+      "tag": "direct"
     },
     {
       "type": "block",
@@ -171,7 +171,12 @@ echo '{
     "final": "direct",
     "auto_detect_interface": true
   },
-  "experimental": {}
+  "experimental": {
+    "cache_file": {
+      "enabled": true,
+      "path": "cache.db"
+    }
+  }
 }' > /etc/sing-box/config.json
 
 # Tạo tệp dịch vụ systemd cho sing-box
