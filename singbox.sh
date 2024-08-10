@@ -11,6 +11,12 @@ export ARCH=$(case "$(uname -m)" in
 esac)
 echo -e "\nMy server architecture is: $ARCH"
 
+# Cập nhật danh sách gói và cài đặt unzip nếu chưa có
+apt update && apt install -y unzip
+
+# Cài đặt múi giờ nếu chưa được thiết lập
+timedatectl set-timezone Asia/Ho_Chi_Minh
+
 # Tạo thư mục tạm thời
 TMP_DIR=$(mktemp -d)
 if [ ! -d "$TMP_DIR" ]; then
@@ -86,20 +92,7 @@ echo '{
     "strategy": "prefer_ipv4",
     "static_ips": {
       "m.tiktok.com": [
-        "72.247.127.187",
-        "72.247.127.192",
-        "72.247.127.193",
-        "72.247.127.194",
-        "72.247.127.195",
-        "72.247.127.200",
-        "72.247.127.201",
-        "72.247.127.202",
-        "72.247.127.203",
-        "72.247.127.208",
-        "72.247.127.209",
-        "125.56.219.74",
-        "125.56.219.75",
-        "125.56.219.81"
+        ""
       ]
     },
     "independent_cache": true
@@ -192,7 +185,7 @@ After=network.target nss-lookup.target network-online.target
 CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_SYS_PTRACE CAP_DAC_READ_SEARCH
 AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_SYS_PTRACE CAP_DAC_READ_SEARCH
 ExecStart=/usr/bin/sing-box -D /var/lib/sing-box -C /etc/sing-box run
-ExecReload=/bin/kill -HUP $MAINPID
+ExecReload=/bin/kill -HUP \$MAINPID
 Restart=on-failure
 RestartSec=10s
 LimitNOFILE=infinity
