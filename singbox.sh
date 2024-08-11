@@ -103,8 +103,8 @@ echo '{
   "inbounds": [
     {
       "type": "vless",
-      "listen": "::",
-      "listen_port": 80,
+      "listen": "127.0.0.1",
+      "listen_port": 8001,
       "sniff": true,
       "users": [
         {
