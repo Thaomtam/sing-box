@@ -67,22 +67,22 @@ echo '{
       },
 	    {
         "tag": "dns-khosihuythao-trick-direct",
-        "address": "https://khosihuythao.com/",
+        "address": "https://example4.com/",
         "detour": "direct-fragment"
       },
 	    {
         "tag": "dns-24-trick-direct",
-        "address": "https://24.khosihuythao.com/",
+        "address": "https://example3.com/",
         "detour": "direct-fragment"
       },
 	    {
         "tag": "dns-220-trick-direct",
-        "address": "https://220.khosihuythao.com/",
+        "address": "https://example2.com/",
         "detour": "direct-fragment"
       },
 	    {
         "tag": "dns-169-trick-direct",
-        "address": "https://169.khosihuythao.com/",
+        "address": "https://example1.com/",
         "detour": "direct-fragment"
       },
       {
@@ -117,18 +117,17 @@ echo '{
         "23.202.34.249",
         "23.202.34.248"
       ],
-      "khosihuythao.com": [
-        "104.21.30.98",
-        "172.67.172.185"
-      ],
-      "24.khosihuythao.com": [
-        "103.82.193.24"
-      ],
-      "220.khosihuythao.com": [
-        "103.179.173.220"
-      ],
-      "169.khosihuythao.com": [
-        "27.71.235.169"
+      "example4.com": [
+        ""
+      ]
+      "example3.com": [
+        ""
+      ]
+      "example2.com": [
+        ""
+      ]
+      "example1.com": [
+        ""
       ]
     },
     "independent_cache": true
