@@ -92,7 +92,10 @@ echo '{
     "strategy": "prefer_ipv4",
     "static_ips": {
       "m.tiktok.com": [
-        ""
+        "23.202.34.251",
+        "23.202.34.250",
+        "23.202.34.249",
+        "23.202.34.248"
       ]
     },
     "independent_cache": true
@@ -100,8 +103,8 @@ echo '{
   "inbounds": [
     {
       "type": "vless",
-      "listen": "::",
-      "listen_port": 80,
+      "listen": "127.0.0.1",
+      "listen_port": 8001,
       "sniff": true,
       "users": [
         {
