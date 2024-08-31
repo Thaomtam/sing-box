@@ -57,12 +57,12 @@ echo '{
     "servers": [
       {
         "tag": "dns-remote",
-        "address": "dhcp://auto",
+        "address": "udp://1.1.1.1",
         "address_resolver": "dns-direct"
       },
       {
         "tag": "dns-direct",
-        "address": "udp://192.168.0.1",
+        "address": "1.1.1.1",
         "address_resolver": "dns-local",
         "detour": "direct"
       },
