@@ -57,17 +57,12 @@ echo '{
     "servers": [
       {
         "tag": "dns-remote",
-        "address": "udp://1.1.1.1",
+        "address": "dhcp://auto",
         "address_resolver": "dns-direct"
       },
       {
-        "tag": "dns-trick-direct",
-        "address": "https://m.tiktok.com/",
-        "detour": "direct-fragment"
-      },
-      {
         "tag": "dns-direct",
-        "address": "1.1.1.1",
+        "address": "udp://192.168.0.1",
         "address_resolver": "dns-local",
         "detour": "direct"
       },
@@ -77,8 +72,29 @@ echo '{
         "detour": "direct"
       },
       {
-        "tag": "dns-block",
-        "address": "rcode://refused"
+        "tag": "dns-tiktok-trick-direct",
+        "address": "https://m.tiktok.com/",
+        "detour": "direct-fragment"
+      },
+      {
+        "tag": "dns-khosihuythao-trick-direct",
+        "address": "https://khosihuythao.com/",
+        "detour": "direct-fragment"
+      },
+      {
+        "tag": "dns-24-trick-direct",
+        "address": "https://24.khosihuythao.com/",
+        "detour": "direct-fragment"
+      },
+      {
+        "tag": "dns-220-trick-direct",
+        "address": "https://220.khosihuythao.com/",
+        "detour": "direct-fragment"
+      },
+      {
+        "tag": "dns-169-trick-direct",
+        "address": "https://169.khosihuythao.com/",
+        "detour": "direct-fragment"
       }
     ],
     "rules": [
@@ -89,15 +105,28 @@ echo '{
       }
     ],
     "final": "dns-remote",
-    "strategy": "prefer_ipv4",
     "static_ips": {
+      "169.khosihuythao.com": [
+        "27.71.235.169"
+      ],
+      "220.khosihuythao.com": [
+        "103.179.173.220"
+      ],
+      "24.khosihuythao.com": [
+        "103.82.193.24"
+      ],
+      "khosihuythao.com": [
+        "104.21.30.98",
+        "172.67.172.185"
+      ],
       "m.tiktok.com": [
-        "23.202.34.251",
-        "23.202.34.250",
-        "23.202.34.249",
-        "23.202.34.248"
+        "23.202.35.251",
+        "23.202.35.250",
+        "23.202.35.249",
+        "23.202.35.248"
       ]
     },
+    "strategy": "ipv4_only",
     "independent_cache": true
   },
   "inbounds": [
@@ -116,11 +145,58 @@ echo '{
       },
       "transport": {
         "type": "ws",
-        "path": "/gists/cache",
-        "early_data_header_name": "Sec-WebSocket-Protocol",
-        "headers": {
-          "Host": "m.tiktok.com"
+        "path": "/thoitiet",
+        "early_data_header_name": "Sec-WebSocket-Protocol"
+      }
+    },
+    {
+      "type": "vmess",
+      "listen": "127.0.0.1",
+      "listen_port": 8002,
+      "users": [
+           {
+            "uuid": "thoitiet",
+            "alterId": 0
+           }
+      ],
+      "transport": {
+        "type": "ws",
+        "path": "/thoitiet1",
+        "max_early_data": 2048,
+        "early_data_header_name": "Sec-WebSocket-Protocol"
+      }
+    },
+    {
+      "type": "vless",
+      "listen": "127.0.0.1",
+      "listen_port": 8003,
+      "sniff": true,
+      "users": [
+        {
+          "uuid": "thoitiet"
         }
+      ],
+      "multiplex": {
+        "enabled": true
+      },
+      "transport": {
+        "type": "httpupgrade",
+        "path": "/thoitiet2"
+      }
+    },
+    {
+      "type": "vmess",
+      "listen": "127.0.0.1",
+      "listen_port": 8004,
+      "users": [
+           {
+            "uuid": "thoitiet",
+            "alterId": 0
+           }
+      ],
+      "transport": {
+        "type": "httpupgrade",
+        "path": "/thoitiet3"
       }
     },
     {
