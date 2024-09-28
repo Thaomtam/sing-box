@@ -49,156 +49,27 @@ mkdir -p /etc/sing-box
 # Tạo tệp cấu hình mặc định (có thể tuỳ chỉnh theo yêu cầu của bạn)
 echo '{
   "log": {
-    "disabled": false,
     "level": "info",
     "timestamp": true
   },
   "dns": {
     "servers": [
       {
-        "tag": "dns-remote",
-        "address": "udp://1.1.1.1",
-        "address_resolver": "dns-direct"
-      },
-      {
-        "tag": "dns-direct",
-        "address": "1.1.1.1",
-        "address_resolver": "dns-local",
+        "tag": "cloudflare",
+        "address": "8.8.8.8",
         "detour": "direct"
-      },
-      {
-        "tag": "dns-local",
-        "address": "local",
-        "detour": "direct"
-      },
-      {
-        "tag": "dns-tiktok-trick-direct",
-        "address": "https://m.tiktok.com/",
-        "detour": "direct-fragment"
-      },
-      {
-        "tag": "dns-khosihuythao-trick-direct",
-        "address": "https://khosihuythao.com/",
-        "detour": "direct-fragment"
-      },
-      {
-        "tag": "dns-24-trick-direct",
-        "address": "https://24.khosihuythao.com/",
-        "detour": "direct-fragment"
-      },
-      {
-        "tag": "dns-220-trick-direct",
-        "address": "https://220.khosihuythao.com/",
-        "detour": "direct-fragment"
-      },
-      {
-        "tag": "dns-169-trick-direct",
-        "address": "https://169.khosihuythao.com/",
-        "detour": "direct-fragment"
       }
     ],
     "rules": [
       {
         "outbound": "any",
-        "server": "dns-local",
-        "disable_cache": true
+        "server": "cloudflare"
       }
     ],
-    "final": "dns-remote",
-    "static_ips": {
-      "169.khosihuythao.com": [
-        "27.71.235.169"
-      ],
-      "220.khosihuythao.com": [
-        "103.179.173.220"
-      ],
-      "24.khosihuythao.com": [
-        "103.82.193.24"
-      ],
-      "khosihuythao.com": [
-        "104.21.30.98",
-        "172.67.172.185"
-      ],
-      "m.tiktok.com": [
-        "23.202.35.251",
-        "23.202.35.250",
-        "23.202.35.249",
-        "23.202.35.248"
-      ]
-    },
-    "strategy": "ipv4_only",
-    "independent_cache": true
+    "final": "cloudflare",
+    "strategy": "ipv4_only"
   },
   "inbounds": [
-    {
-      "type": "vless",
-      "listen": "127.0.0.1",
-      "listen_port": 8001,
-      "sniff": true,
-      "users": [
-        {
-          "uuid": "thoitiet"
-        }
-      ],
-      "multiplex": {
-        "enabled": true
-      },
-      "transport": {
-        "type": "ws",
-        "path": "/thoitiet",
-        "early_data_header_name": "Sec-WebSocket-Protocol"
-      }
-    },
-    {
-      "type": "vmess",
-      "listen": "127.0.0.1",
-      "listen_port": 8002,
-      "users": [
-           {
-            "uuid": "thoitiet",
-            "alterId": 0
-           }
-      ],
-      "transport": {
-        "type": "ws",
-        "path": "/thoitiet1",
-        "max_early_data": 2048,
-        "early_data_header_name": "Sec-WebSocket-Protocol"
-      }
-    },
-    {
-      "type": "vless",
-      "listen": "127.0.0.1",
-      "listen_port": 8003,
-      "sniff": true,
-      "users": [
-        {
-          "uuid": "thoitiet"
-        }
-      ],
-      "multiplex": {
-        "enabled": true
-      },
-      "transport": {
-        "type": "httpupgrade",
-        "path": "/thoitiet2"
-      }
-    },
-    {
-      "type": "vmess",
-      "listen": "127.0.0.1",
-      "listen_port": 8004,
-      "users": [
-           {
-            "uuid": "thoitiet",
-            "alterId": 0
-           }
-      ],
-      "transport": {
-        "type": "httpupgrade",
-        "path": "/thoitiet3"
-      }
-    },
     {
       "type": "socks",
       "listen": "::",
@@ -209,6 +80,57 @@ echo '{
           "Password": "admin123123"
         }
       ]
+    },
+    {
+      "type": "trojan",
+      "listen": "::",
+      "listen_port": 8443,
+      "users": [
+        {
+          "password": "thoitiet"
+        }
+      ],
+      "tls": {
+        "enabled": true,
+        "insecure": true,
+        "certificate_path": "/etc/sing-box/bing.com.crt",
+        "key_path": "/etc/sing-box/bing.com.key"
+      },
+      "multiplex": {
+        "enabled": true,
+        "brutal": {
+          "enabled": true,
+          "up_mbps": 150,
+          "down_mbps": 50
+        }
+      }
+    },
+    {
+      "type": "hysteria2",
+      "tag": "d5tlrad8-in",
+      "listen": "::",
+      "listen_port": 443,
+      "sniff": true,
+      "sniff_override_destination": true,
+      "up_mbps": 150,
+      "down_mbps": 50,
+      "users": [
+        {
+          "name": "EQUR9AK+",
+          "password": "WqzGKnmZ9UaB"
+        }
+      ],
+      "ignore_client_bandwidth": false,
+      "masquerade": "https://www.bing.com",
+      "tls": {
+        "enabled": true,
+        "insecure": true,
+        "alpn": [
+          "h3"
+        ],
+        "certificate_path": "/etc/sing-box/bing.com.crt",
+        "key_path": "/etc/sing-box/bing.com.key"
+      }
     }
   ],
   "outbounds": [
@@ -261,17 +183,18 @@ echo '{
 # Tạo tệp dịch vụ systemd cho sing-box
 cat <<EOF> /etc/systemd/system/sing-box.service
 [Unit]
-Description=sing-box service
-Documentation=https://sing-box.sagernet.org
-After=network.target nss-lookup.target network-online.target
+After=network.target nss-lookup.target
 
 [Service]
+User=root
+WorkingDirectory=/root
 CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_SYS_PTRACE CAP_DAC_READ_SEARCH
 AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_SYS_PTRACE CAP_DAC_READ_SEARCH
 ExecStart=/usr/bin/sing-box -D /var/lib/sing-box -C /etc/sing-box run
-ExecReload=/bin/kill -HUP \$MAINPID
+ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-failure
-RestartSec=10s
+RestartSec=10
+LimitNPROC=512
 LimitNOFILE=infinity
 
 [Install]
