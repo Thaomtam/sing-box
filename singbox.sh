@@ -49,27 +49,86 @@ mkdir -p /etc/sing-box
 # Tạo tệp cấu hình mặc định (có thể tuỳ chỉnh theo yêu cầu của bạn)
 echo '{
   "log": {
+    "disabled": false,
     "level": "info",
     "timestamp": true
   },
   "dns": {
     "servers": [
       {
-        "tag": "cloudflare",
-        "address": "8.8.8.8",
+        "tag": "dns-remote",
+        "address": "udp://1.1.1.1",
+        "address_resolver": "dns-direct"
+      },
+      {
+        "tag": "dns-tiktok-trick-direct",
+        "address": "https://m.tiktok.com/",
+        "detour": "direct-fragment"
+      },
+      {
+        "tag": "dns-direct",
+        "address": "1.1.1.1",
+        "address_resolver": "dns-local",
         "detour": "direct"
+      },
+      {
+        "tag": "dns-local",
+        "address": "local",
+        "detour": "direct"
+      },
+      {
+        "tag": "dns-block",
+        "address": "rcode://refused"
       }
     ],
     "rules": [
       {
         "outbound": "any",
-        "server": "cloudflare"
+        "server": "dns-local",
+        "disable_cache": true
       }
     ],
-    "final": "cloudflare",
-    "strategy": "ipv4_only"
+    "final": "dns-remote",
+    "strategy": "prefer_ipv4",
+    "static_ips": {
+      "m.tiktok.com": [
+        "23.202.34.251",
+        "23.202.34.250",
+        "23.202.34.249",
+        "23.202.34.248"
+      ]
+    },
+    "independent_cache": true
   },
   "inbounds": [
+    {
+      "type": "vless",
+      "listen": "127.0.0.1",
+      "listen_port": 8001,
+      "sniff": true,
+      "users": [
+        {
+          "uuid": "thoitiet"
+        }
+      ],
+      "multiplex": {
+        "enabled": true,
+        "padding": false,
+        "brutal": {
+          "enabled": true,
+          "up_mbps": 150,
+          "down_mbps": 50
+        }
+      },
+      "transport": {
+        "type": "ws",
+        "path": "/gists/cache",
+        "early_data_header_name": "Sec-WebSocket-Protocol",
+        "headers": {
+          "Host": "m.tiktok.com"
+        }
+      }
+    },
     {
       "type": "socks",
       "listen": "::",
@@ -80,57 +139,6 @@ echo '{
           "Password": "admin123123"
         }
       ]
-    },
-    {
-      "type": "trojan",
-      "listen": "::",
-      "listen_port": 8443,
-      "users": [
-        {
-          "password": "thoitiet"
-        }
-      ],
-      "tls": {
-        "enabled": true,
-        "insecure": true,
-        "certificate_path": "/etc/sing-box/bing.com.crt",
-        "key_path": "/etc/sing-box/bing.com.key"
-      },
-      "multiplex": {
-        "enabled": true,
-        "brutal": {
-          "enabled": true,
-          "up_mbps": 150,
-          "down_mbps": 50
-        }
-      }
-    },
-    {
-      "type": "hysteria2",
-      "tag": "d5tlrad8-in",
-      "listen": "::",
-      "listen_port": 443,
-      "sniff": true,
-      "sniff_override_destination": true,
-      "up_mbps": 150,
-      "down_mbps": 50,
-      "users": [
-        {
-          "name": "EQUR9AK+",
-          "password": "WqzGKnmZ9UaB"
-        }
-      ],
-      "ignore_client_bandwidth": false,
-      "masquerade": "https://www.bing.com",
-      "tls": {
-        "enabled": true,
-        "insecure": true,
-        "alpn": [
-          "h3"
-        ],
-        "certificate_path": "/etc/sing-box/bing.com.crt",
-        "key_path": "/etc/sing-box/bing.com.key"
-      }
     }
   ],
   "outbounds": [
