@@ -48,3 +48,18 @@ bash <(curl -fsSL https://tcp.hy2.sh/)
 [Docker--xray](https://github.com/Thaomtam/Docker--xray)
 
 [hiddify-singbox](https://github.com/Thaomtam/hiddify-singbox)
+
+# Gỡ Cài Đặt Sing-Box
+```
+systemctl stop sing-box.service
+systemctl disable sing-box.service
+systemctl daemon-reload
+rm -rf /etc/sing-box
+rm -rf /var/lib/sing-box
+rm -f /usr/bin/sing-box
+rm -f /etc/systemd/system/sing-box.service
+```
+# Gỡ Cài Đặt Nginx
+```
+systemctl stop nginx && apt purge -y nginx && rm -r /etc/systemd/system/nginx.service.d/
+```
